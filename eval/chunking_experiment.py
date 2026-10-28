@@ -36,7 +36,7 @@ def main() -> None:
     for p in sorted((ROOT / "data" / "synthetic").iterdir()):
         if p.suffix.lower() in SUPPORTED_EXTENSIONS:
             docs.extend(load_bytes(p.name, p.read_bytes()))
-    qs = [q for q in json.loads((ROOT / "eval" / "synthetic_questions.json").read_text())
+    qs = [q for q in json.loads((ROOT / "eval" / "synthetic_questions.json").read_text(encoding="utf-8"))
           if q["type"] != "unanswerable" and q.get("must_include")]
 
     lines = ["# Chunking strategy comparison", "",
@@ -62,7 +62,7 @@ def main() -> None:
         lines.append(row)
     out = ROOT / "eval" / "results" / "chunking.md"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("wrote", out)
 
 

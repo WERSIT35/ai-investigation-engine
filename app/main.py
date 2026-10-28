@@ -68,6 +68,17 @@ class RateLimiter:
             q.append(now)
 
 
+def client_ip(request: Request, trust_proxy: bool) -> str:
+    """Key for per-client rate limiting. Without a proxy it is the TCP peer. Behind one, every visitor shares the
+    proxy's address, so the client is read from X-Forwarded-For: the right-most entry is the one our own proxy
+    appended; entries to its left come from the client and can be forged."""
+    if trust_proxy:
+        last = request.headers.get("x-forwarded-for", "").split(",")[-1].strip()
+        if last:
+            return last
+    return request.client.host if request.client else "unknown"
+
+
 def _build_default(settings: Settings) -> tuple[Engine, InvestigationAgent]:
     engine = Engine(settings, make_embedder(settings.embed_backend, settings.embed_model, settings.embed_batch))
     engine.rebuild_from_store()
@@ -181,7 +192,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None,
 
     @app.post("/ask")
     def ask(body: AskRequest, request: Request):
-        limiter.check(request.client.host if request.client else "unknown")
+        limiter.check(client_ip(request, settings.trust_proxy))
         try:
             return state["agent"].ask(body.question, mode=body.mode).to_dict()
         except ValueError as exc:

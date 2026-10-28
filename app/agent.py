@@ -69,10 +69,13 @@ TOOLS: list[dict[str, Any]] = [
         "function": {
             "name": "read_document",
             "description": "Read the passages of one document by its doc id or exact title "
-                           "(as shown in search results).",
+                           "(as shown in search results). Returns up to 8 passages at a time.",
             "parameters": {
                 "type": "object",
-                "properties": {"doc": {"type": "string", "description": "doc id or title"}},
+                "properties": {
+                    "doc": {"type": "string", "description": "doc id or title"},
+                    "start": {"type": "integer", "description": "1-based passage to start from", "default": 1},
+                },
                 "required": ["doc"],
             },
         },
@@ -80,6 +83,7 @@ TOOLS: list[dict[str, Any]] = [
 ]
 
 _LABEL = re.compile(r"\[?S(\d+)\]?")
+READ_PAGE = 8  # passages returned per read_document call
 _INLINE = re.compile(r"\[S(\d+)\]")
 
 
@@ -154,6 +158,15 @@ def _echo_call(c: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def _int_arg(value: Any, default: int, lo: int, hi: int) -> int:
+    """Model-supplied numbers can be strings, floats or junk; never let them raise."""
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        n = default
+    return max(lo, min(hi, n))
+
+
 def _parse_final(text: str) -> dict[str, Any] | None:
     if not text:
         return None
@@ -196,7 +209,7 @@ class InvestigationAgent:
             q = str(args.get("query", "")).strip()
             if not q:
                 return "Tool error: 'query' is required.", {"error": "empty query"}
-            k = max(1, min(10, int(args.get("top_k", 6) or 6)))
+            k = _int_arg(args.get("top_k"), 6, 1, 10)
             items = ev.add(self.engine.search(q, top_k=k, mode=mode))
             return ev.render(items), {"query": q, "top_k": k, "labels": [i[0] for i in items]}
         if name == "read_document":
@@ -204,9 +217,15 @@ class InvestigationAgent:
             docs = self.engine.find_docs(ref, limit=1)
             if not docs:
                 return f"Tool error: no document matches '{ref}'. Use search_documents.", {"doc": ref, "error": "not found"}
-            hits = self.engine.get_document_chunks(docs[0].doc_id)[:8]
-            items = ev.add(hits)
-            return ev.render(items), {"doc": docs[0].doc_id, "labels": [i[0] for i in items]}
+            passages = self.engine.get_document_chunks(docs[0].doc_id)
+            start = _int_arg(args.get("start"), 1, 1, max(1, len(passages)))
+            items = ev.add(passages[start - 1:start - 1 + READ_PAGE])
+            out = ev.render(items)
+            end = start - 1 + len(items)
+            if end < len(passages):
+                out += (f"\n\n(Passages {start}-{end} of {len(passages)}. "
+                        f"Call read_document with start={end + 1} for the rest.)")
+            return out, {"doc": docs[0].doc_id, "start": start, "labels": [i[0] for i in items]}
         return f"Tool error: unknown tool '{name}'.", {"error": "unknown tool"}
 
     # ------------------------------------------------------------------ main entry

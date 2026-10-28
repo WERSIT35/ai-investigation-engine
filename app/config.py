@@ -34,7 +34,7 @@ class Settings:
     # LLM: any OpenAI-compatible endpoint (Groq, Gemini, OpenRouter, ...).
     llm_base_url: str = field(default_factory=lambda: os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"))
     llm_api_key: str | None = field(default_factory=lambda: os.getenv("LLM_API_KEY") or None)
-    llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "gemini-2.5-flash"))
+    llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "gemini-3.1-flash-lite"))
     llm_timeout: float = field(default_factory=lambda: _float("LLM_TIMEOUT", 60))
     llm_max_retries: int = field(default_factory=lambda: _int("LLM_MAX_RETRIES", 3))
 
@@ -55,6 +55,9 @@ class Settings:
     # API protection
     admin_token: str | None = field(default_factory=lambda: os.getenv("ADMIN_TOKEN") or None)
     ask_rate_per_min: int = field(default_factory=lambda: _int("ASK_RATE_PER_MIN", 10))
+    # Behind a reverse proxy (HF Spaces, Render, Koyeb) the TCP peer is the proxy; TRUST_PROXY=1 takes the client
+    # IP from X-Forwarded-For instead. Leave it off when the app is exposed directly (the header is spoofable).
+    trust_proxy: bool = field(default_factory=lambda: os.getenv("TRUST_PROXY", "0").lower() in ("1", "true", "yes"))
     max_upload_mb: int = field(default_factory=lambda: _int("MAX_UPLOAD_MB", 10))
 
 

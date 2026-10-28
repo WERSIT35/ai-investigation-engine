@@ -39,7 +39,7 @@ def load_items(limit: int | None) -> list[dict]:
     path = ROOT / "eval" / "eval_set.jsonl"
     if not path.exists():
         sys.exit("eval/eval_set.jsonl missing: run `python eval/build_eval_set.py` first")
-    items = [json.loads(l) for l in path.open()]
+    items = [json.loads(l) for l in path.open(encoding="utf-8")]
     return items[:limit] if limit else items
 
 
@@ -177,7 +177,7 @@ def write_report(res: dict, path: Path) -> None:
                 L.append(f"- **{r['id']}** ({r['type']}) Q: {r['question']}  \n  gold: `{r['gold']}` · got: "
                          f"`{(r['short_answer'] or r['answer'])[:160]}` · insufficient={r['insufficient']} · "
                          f"evidence_recall={_f(r.get('evidence_recall'))}")
-    path.write_text("\n".join(L) + "\n")
+    path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
 def main() -> None:
@@ -208,7 +208,7 @@ def main() -> None:
             print(json.dumps(res["e2e"][mode]["summary"], indent=2))
     RESULTS.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    (RESULTS / f"{stamp}.json").write_text(json.dumps(res, indent=2, default=str))
+    (RESULTS / f"{stamp}.json").write_text(json.dumps(res, indent=2, default=str), encoding="utf-8")
     write_report(res, RESULTS / "report.md")
     print(f"\nwrote {RESULTS / (stamp + '.json')} and {RESULTS / 'report.md'}")
 

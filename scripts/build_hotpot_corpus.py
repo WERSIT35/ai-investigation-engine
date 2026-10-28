@@ -48,7 +48,7 @@ def load_split(split: str):
         cache = OUT / f"raw_{split}.json"
         if not cache.exists():
             urllib.request.urlretrieve(RAW_URLS[split], cache)
-        return (_normalise(ex) for ex in json.loads(cache.read_text()))
+        return (_normalise(ex) for ex in json.loads(cache.read_text(encoding="utf-8")))
 
 
 def main() -> None:
@@ -59,7 +59,8 @@ def main() -> None:
 
     seen: set[str] = set()
     n_docs = 0
-    with (OUT / "corpus.jsonl").open("w") as corpus, (OUT / "questions.jsonl").open("w") as qf:
+    with (OUT / "corpus.jsonl").open("w", encoding="utf-8") as corpus, \
+            (OUT / "questions.jsonl").open("w", encoding="utf-8") as qf:
         for split in ("validation", "train"):
             if split == "train" and n_docs >= args.target:
                 break

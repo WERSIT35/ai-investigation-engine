@@ -4,7 +4,8 @@ FROM python:3.11-slim
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     FASTEMBED_CACHE_PATH=/app/.cache/fastembed \
-    PORT=7860
+    PORT=7860 \
+    TRUST_PROXY=1
 
 WORKDIR /app
 COPY requirements.txt .

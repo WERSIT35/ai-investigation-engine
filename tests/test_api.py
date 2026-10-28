@@ -44,3 +44,16 @@ def test_rate_limit(settings, engine):
     with make_client(replace(settings, ask_rate_per_min=2), engine) as c:
         codes = [c.post("/ask", json={"question": "anything here"}).status_code for _ in range(3)]
         assert codes == [200, 200, 429]
+
+
+def test_rate_limit_is_per_client_behind_a_proxy(settings, engine):
+    with make_client(replace(settings, ask_rate_per_min=1, trust_proxy=True), engine) as c:
+        def ask(xff):
+            return c.post("/ask", json={"question": "anything here"}, headers={"X-Forwarded-For": xff}).status_code
+        assert ask("1.1.1.1") == 200
+        assert ask("2.2.2.2") == 200  # another visitor has their own bucket, not the proxy's shared one
+        assert ask("9.9.9.9, 1.1.1.1") == 429  # a forged left-most entry doesn't reset the real client's bucket
+    with make_client(replace(settings, ask_rate_per_min=1), engine) as c:  # proxy not trusted: header ignored
+        codes = [c.post("/ask", json={"question": "anything here"}, headers={"X-Forwarded-For": ip}).status_code
+                 for ip in ("1.1.1.1", "2.2.2.2")]
+        assert codes == [200, 429]

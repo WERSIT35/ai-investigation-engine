@@ -57,6 +57,38 @@ def test_tool_call_extras_are_echoed_back(loaded_engine):
     assert echoed["extra_content"] == sig
     assert echoed["function"]["name"] == "search_documents"
 
+def test_malformed_tool_arguments_do_not_crash(loaded_engine):
+    llm = ScriptedLLM([
+        tool_call("search_documents", query="ledger rollback", top_k="six"),  # not a number
+        ChatResult(content=None, usage=Usage(1, 100, 10, 0.1),
+                   tool_calls=[{"id": "c2", "name": "search_documents", "arguments": "{not json"}]),
+        final(answer="Rolled back [S1].", short_answer="", citations=["S1"], conflicts=[], insufficient=False),
+    ])
+    a = InvestigationAgent(loaded_engine, llm).ask("How was INC-1042 fixed?")
+    assert a.status == "ok"
+    steps = [t for t in a.trace if t["step"] in (1, 2)]
+    assert steps[0]["args"]["top_k"] == 6 and "error" in steps[1]["args"]
+
+
+def test_read_document_pages_through_long_documents(engine):
+    from app.models import Document
+
+    text = " ".join(f"Fact number {i} about the ledger." for i in range(60))
+    engine.ingest([Document("long", "Long doc", text, "s", "txt")], strategy="fixed", size=120, overlap=0)
+    n = engine.docs["long"].n_chunks
+    assert n > 8
+    llm = ScriptedLLM([
+        tool_call("read_document", doc="long"),
+        tool_call("read_document", doc="long", start=9),
+        final(answer="Done [S1].", short_answer="", citations=["S1"], conflicts=[], insufficient=False),
+    ])
+    a = InvestigationAgent(engine, llm).ask("What does the long doc say?")
+    tool_msgs = [m["content"] for m in llm.seen[-1] if m["role"] == "tool"]
+    assert f"Passages 1-8 of {n}" in tool_msgs[0] and "start=9" in tool_msgs[0]
+    reads = [t for t in a.trace if t["tool"] == "read_document"]
+    assert [r["args"]["start"] for r in reads] == [1, 9]
+    assert len({lbl for r in reads for lbl in r["args"]["labels"]}) >= n - 1  # the second page added new passages
+
 def test_conflicts_are_kept_with_valid_labels(loaded_engine):
     llm = ScriptedLLM([final(answer="Resolved at 14:20 [S1] or 11:05 [S2].", short_answer="",
                              citations=["S1", "S2"], insufficient=False,

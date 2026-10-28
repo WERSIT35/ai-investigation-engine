@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def iter_corpus(path: Path, limit: int | None):
-    with path.open() as f:
+    with path.open(encoding="utf-8") as f:
         for i, line in enumerate(f):
             if limit is not None and i >= limit:
                 break
