@@ -1,0 +1,8 @@
+[
+  {"doc_id": "syn::team-ledger", "title": "Team directory — Ledger team", "type": "team",
+   "text": "The Ledger team owns ledger-service and the settlement database schema. Team lead: Nino Kapanadze. On-call rotation is weekly, handover on Mondays at 10:00."},
+  {"doc_id": "syn::team-sre", "title": "Team directory — SRE", "type": "team",
+   "text": "The SRE team owns api-gateway, Kafka and the deployment tooling (deployctl). Team lead: Levan Beridze. SRE is the escalation point for all production incidents."},
+  {"doc_id": "syn::team-notifications", "title": "Team directory — Notifications team", "type": "team",
+   "text": "The Notifications team owns notification-service, receipt e-mails and merchant webhooks. Team lead: Mariam Gelashvili."}
+]

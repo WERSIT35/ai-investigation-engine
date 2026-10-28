@@ -1,0 +1,16 @@
+---
+doc_id: syn::incident-inc-1057
+title: Incident report INC-1057 — Delayed merchant webhooks (March 18, 2026)
+type: incident-report
+incident: INC-1057
+date: 2026-03-21
+---
+Incident report INC-1057 — Delayed merchant webhooks
+
+On 2026-03-18 merchants reported that webhooks for settled payments arrived up to 3 hours late. Payment processing itself was not affected.
+
+Root cause: on March 10 the payments.settled topic was expanded from 12 to 24 partitions (CHG-3310) but notification-service was not redeployed, so its consumers only read the original 12 partitions. Events on the new partitions accumulated as consumer lag.
+
+Fix: notification-service was redeployed with rebalancing enabled on 2026-03-20 (CHG-3325). Lag cleared within one hour.
+
+Affected service: notification-service.

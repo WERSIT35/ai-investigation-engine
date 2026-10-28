@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><title>Payments platform — architecture overview</title>
+<meta name="doc_id" content="syn::architecture-overview">
+<meta name="type" content="architecture">
+<meta name="date" content="2026-01-20"></head>
+<body>
+<h1>Payments platform — architecture overview</h1>
+<p>The payments platform has four core services. <b>api-gateway</b> authenticates merchants and applies rate limits. <b>payment-api</b> accepts card payments and asks <b>ledger-service</b> to record each transaction.</p>
+<p><b>ledger-service</b> is the system of record. It writes to the primary Postgres cluster through PgBouncer and, after each successful write, publishes an event to the Kafka topic payments.settled.</p>
+<p><b>notification-service</b> consumes payments.settled and sends receipt e-mails and merchant webhooks. If ledger-service is slow, payment confirmations and receipts are delayed.</p>
+<script>console.log("ignored");</script>
+</body></html>

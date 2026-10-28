@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigation Engine</title>
+<meta name="description" content="Ask multi-hop questions over a large document collection and get cited, conflict-aware answers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f1ec; --paper:#fbfaf7; --ink:#151515; --ink-mid:#4a4a46; --ink-dim:#6b6a64;
+  --line:rgb(21 21 21 / 12%); --line-strong:rgb(21 21 21 / 28%);
+  --accent:#b8360f; --accent-soft:rgb(184 54 15 / 9%);
+  --serif:"Instrument Serif", Georgia, serif; --sans:"Instrument Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121211; --paper:#191917; --ink:#ecebe6; --ink-mid:#c2c0b8; --ink-dim:#9b9a92;
+    --line:rgb(255 255 255 / 10%); --line-strong:rgb(255 255 255 / 24%);
+    --accent:#ff7a4d; --accent-soft:rgb(255 122 77 / 12%);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+.kicker{font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
+header{border-bottom:1px solid var(--line);padding:24px 0 16px}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
+h1{font:400 clamp(40px,7vw,84px)/.92 var(--serif);letter-spacing:-.02em;margin:12px 0 0}
+h1 em{color:var(--accent)}
+nav{display:flex;gap:4px;margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
+nav button{background:none;border:1px solid transparent;border-radius:999px;padding:8px 16px;cursor:pointer;
+  font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);min-height:40px}
+nav button[aria-selected="true"]{border-color:var(--line-strong);color:var(--ink)}
+main{padding:32px 0 96px}
+section[hidden]{display:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+textarea,input[type=text],input[type=password],select{background:var(--paper);border:1px solid var(--line-strong);
+  border-radius:8px;padding:12px;width:100%}
+textarea{min-height:96px;resize:vertical;font-size:18px}
+select{width:auto}
+.btn{border-radius:999px;padding:10px 20px;border:1px solid var(--line-strong);background:transparent;cursor:pointer;min-height:44px}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.btn:disabled{opacity:.5;cursor:wait}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:none;cursor:pointer;color:var(--ink-mid);text-align:left}
+.chip:hover{border-color:var(--line-strong);color:var(--ink)}
+.result{margin-top:40px;border-top:1px solid var(--line-strong);padding-top:24px}
+.q-echo{font:400 clamp(28px,4.4vw,48px)/1.05 var(--serif);letter-spacing:-.01em;margin:8px 0 24px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.badge{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:999px;padding:4px 10px;color:var(--ink-mid)}
+.badge.warn{border-color:var(--accent);color:var(--accent)}
+.answer{font-size:19px;line-height:1.6;max-width:68ch;white-space:pre-wrap}
+.short{font:500 13px var(--mono);color:var(--ink-dim);margin-top:12px}
+.cite{font:500 11px var(--mono);color:var(--accent);background:var(--accent-soft);border:0;border-radius:4px;padding:1px 4px;margin:0 1px;cursor:pointer;vertical-align:2px}
+.grid{display:grid;grid-template-columns:1fr;gap:32px;margin-top:40px}
+@media (min-width:880px){.grid{grid-template-columns:3fr 2fr}}
+h2{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 12px;
+  padding-bottom:8px;border-bottom:1px solid var(--line)}
+.src{border-bottom:1px solid var(--line);padding:12px 0}
+.src summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:baseline}
+.src summary::-webkit-details-marker{display:none}
+.src .lbl{font:500 12px var(--mono);color:var(--accent);min-width:32px}
+.src .ttl{font-weight:600}
+.src .meta{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
+.src p{margin:8px 0 0 44px;color:var(--ink-mid);font-size:15px;white-space:pre-wrap}
+.src.flash{background:var(--accent-soft)}
+.conflict{border-left:2px solid var(--accent);padding:4px 0 4px 12px;margin:0 0 12px}
+.trace{font:13px/1.6 var(--mono);color:var(--ink-mid);margin:0;padding:0;list-style:none}
+.trace li{border-bottom:1px solid var(--line);padding:6px 0}
+.muted{color:var(--ink-dim);font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
+td.id{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
+.hit{border-bottom:1px solid var(--line);padding:16px 0}
+.hit .ranks{font:12px var(--mono);color:var(--ink-dim)}
+.status{min-height:24px;font-size:14px;color:var(--ink-mid);margin-top:8px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--paper);margin-bottom:24px}
+@media (max-width:600px){.answer{font-size:17px} td.hide-sm,th.hide-sm{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <span class="kicker">Case file / AI investigation engine</span>
+      <span class="kicker" id="stats">Loading index…</span>
+    </div>
+    <h1>Ask the archive. <em>Get the evidence.</em></h1>
+    <nav role="tablist" aria-label="Sections">
+      <button role="tab" aria-selected="true" data-tab="ask">01 Investigate</button>
+      <button role="tab" aria-selected="false" data-tab="docs">02 Documents</button>
+      <button role="tab" aria-selected="false" data-tab="search">03 Search</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ======================= INVESTIGATE ======================= -->
+  <section id="tab-ask" role="tabpanel">
+    <form id="ask-form">
+      <label class="kicker" for="question">Question</label>
+      <textarea id="question" required minlength="3" placeholder="Which system change caused the payment processing delays in March, which services were affected, and which documents describe the recovery?"></textarea>
+      <div class="row" style="margin-top:12px;justify-content:space-between">
+        <div class="row">
+          <label class="kicker" for="ask-mode">Retrieval</label>
+          <select id="ask-mode"><option value="hybrid">Hybrid (BM25 + dense, RRF)</option><option value="dense">Dense only</option><option value="bm25">BM25 only</option></select>
+        </div>
+        <button class="btn primary" id="ask-btn" type="submit">Investigate →</button>
+      </div>
+      <div class="chips" id="examples"></div>
+    </form>
+    <div class="status" id="ask-status" aria-live="polite"></div>
+    <div id="ask-result"></div>
+  </section>
+
+  <!-- ======================= DOCUMENTS ======================= -->
+  <section id="tab-docs" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Add documents</h2>
+      <p class="muted" style="margin-top:0">Formats: .txt .md .pdf .json .jsonl .html. Re-uploading a file with the same name updates it; unchanged content is skipped.</p>
+      <form id="upload-form" class="row">
+        <input type="file" id="files" multiple accept=".txt,.md,.markdown,.pdf,.json,.jsonl,.html,.htm" required aria-label="Files to upload">
+        <label class="kicker" for="strategy">Chunking</label>
+        <select id="strategy"><option value="">Default</option><option value="recursive">Recursive</option><option value="fixed">Fixed window</option></select>
+        <button class="btn primary" type="submit">Upload</button>
+      </form>
+      <div class="row" style="margin-top:12px">
+        <label class="kicker" for="token">Admin token</label>
+        <input type="password" id="token" placeholder="Only needed if the server sets ADMIN_TOKEN" style="max-width:340px" autocomplete="off">
+      </div>
+      <div class="status" id="upload-status" aria-live="polite"></div>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <input type="text" id="doc-filter" placeholder="Filter by title or id" style="max-width:360px" aria-label="Filter documents">
+      <span class="kicker" id="doc-count"></span>
+    </div>
+    <table>
+      <thead><tr><th>Title</th><th class="hide-sm">Doc id</th><th>Chunks</th><th></th></tr></thead>
+      <tbody id="doc-rows"></tbody>
+    </table>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="prev">← Prev</button><button class="btn" id="next">Next →</button>
+    </div>
+    <div id="doc-view"></div>
+  </section>
+
+  <!-- ======================= SEARCH ======================= -->
+  <section id="tab-search" role="tabpanel" hidden>
+    <form id="search-form" class="row">
+      <input type="text" id="search-q" placeholder="Raw retrieval, no LLM" required style="flex:1;min-width:220px" aria-label="Search query">
+      <select id="search-mode" aria-label="Retrieval mode"><option value="hybrid">Hybrid</option><option value="dense">Dense</option><option value="bm25">BM25</option></select>
+      <button class="btn primary" type="submit">Search</button>
+    </form>
+    <div class="status" id="search-status" aria-live="polite"></div>
+    <div id="search-results"></div>
+  </section>
+</main>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = { get(k){ try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+                set(k,v){ try { localStorage.setItem(k, v); } catch {} } };
+
+async function api(path, opts = {}) {
+  const headers = opts.headers || {};
+  const token = $("#token").value.trim();
+  if (token) headers["X-Admin-Token"] = token;
+  const res = await fetch(path, { ...opts, headers });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.detail ? (typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)) : res.statusText);
+  return body;
+}
+
+// ---------- tabs
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  document.querySelectorAll("main > section").forEach((s) => s.hidden = s.id !== "tab-" + b.dataset.tab);
+  if (b.dataset.tab === "docs") loadDocs();
+}));
+
+// ---------- stats
+async function loadStats() {
+  try {
+    const h = await api("/health");
+    $("#stats").textContent = `${h.documents.toLocaleString()} docs · ${h.chunks.toLocaleString()} chunks · ${h.llm ? "LLM on" : "LLM off"}`;
+  } catch { $("#stats").textContent = "Index unavailable"; }
+}
+loadStats();
+
+// ---------- investigate
+const EXAMPLES = [
+  "Which system change caused the payment processing delays in March, which services were affected, and which documents describe the recovery?",
+  "When was incident INC-1042 resolved?",
+  "Who is older, the director of Jaws or the director of Titanic?",
+  "What was the root cause of the April 2026 fraud-detection outage?",
+];
+$("#examples").innerHTML = EXAMPLES.map((q) => `<button type="button" class="chip">${esc(q)}</button>`).join("");
+$("#examples").addEventListener("click", (e) => { if (e.target.matches(".chip")) { $("#question").value = e.target.textContent; $("#question").focus(); } });
+
+function linkCites(text) {
+  return esc(text).replace(/\[S(\d+)\]/g, (_, n) => `<button class="cite" data-label="S${n}" aria-label="Show source S${n}">S${n}</button>`);
+}
+
+function renderAnswer(a) {
+  const badges = [];
+  if (a.status !== "ok") badges.push(`<span class="badge warn">${esc(a.status)}</span>`);
+  if (a.insufficient) badges.push(`<span class="badge warn">Insufficient evidence</span>`);
+  if (a.conflicts.length) badges.push(`<span class="badge warn">${a.conflicts.length} conflict${a.conflicts.length > 1 ? "s" : ""}</span>`);
+  badges.push(`<span class="badge">${a.citations.length} sources</span>`);
+  badges.push(`<span class="badge">${a.latency_s}s${a.cached ? " · cached" : ""}</span>`);
+  if (a.invalid_citations.length) badges.push(`<span class="badge warn">${a.invalid_citations.length} invalid cites dropped</span>`);
+
+  const conflicts = a.conflicts.map((c) => `<div class="conflict">${linkCites(c.description)} ${c.citations.map((l) => `<button class="cite" data-label="${esc(l)}">${esc(l)}</button>`).join("")}</div>`).join("");
+  const sources = a.citations.map((c) => `
+    <details class="src" id="src-${esc(c.label)}">
+      <summary><span class="lbl">${esc(c.label)}</span><span><span class="ttl">${esc(c.title)}</span><br><span class="meta">${esc(c.doc_id)} · ${esc(c.source)}</span></span></summary>
+      <p>${esc(c.text)}</p>
+    </details>`).join("");
+  const trace = a.trace.map((t) => {
+    const args = t.args || {};
+    const what = args.query ? `“${esc(args.query)}”` : args.doc ? esc(args.doc) : args.forced ? "forced final answer" : esc(JSON.stringify(args));
+    const labels = args.labels || (t.labels || []);
+    return `<li>${esc(String(t.step))} · ${esc(t.tool || "answer")} ${what}${labels.length ? ` → ${labels.join(" ")}` : ""}</li>`;
+  }).join("");
+  const u = a.usage || {};
+  $("#ask-result").innerHTML = `
+    <div class="result">
+      <span class="kicker">Finding</span>
+      <div class="q-echo">${esc(a.question)}</div>
+      <div class="badges">${badges.join("")}</div>
+      <div class="answer">${linkCites(a.answer)}</div>
+      ${a.short_answer ? `<div class="short">Short answer: ${esc(a.short_answer)}</div>` : ""}
+      <div class="grid">
+        <div>
+          ${conflicts ? `<h2>Conflicting evidence</h2>${conflicts}` : ""}
+          <h2>Sources cited</h2>${sources || '<p class="muted">No sources cited.</p>'}
+        </div>
+        <div>
+          <h2>Investigation trace</h2><ol class="trace">${trace}</ol>
+          <p class="muted">${u.llm_calls ?? 0} LLM calls · ${(u.prompt_tokens ?? 0).toLocaleString()} in / ${(u.completion_tokens ?? 0).toLocaleString()} out tokens${u.model ? " · " + esc(u.model) : ""}</p>
+        </div>
+      </div>
+    </div>`;
+}
+
+$("#ask-result").addEventListener("click", (e) => {
+  const b = e.target.closest(".cite"); if (!b) return;
+  const el = document.getElementById("src-" + b.dataset.label); if (!el) return;
+  el.open = true; el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200);
+});
+
+$("#ask-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("#ask-btn"); btn.disabled = true;
+  $("#ask-status").textContent = "Investigating: searching, following leads, checking sources…";
+  try {
+    const a = await api("/ask", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: $("#question").value, mode: $("#ask-mode").value }) });
+    $("#ask-status").textContent = ""; renderAnswer(a);
+  } catch (err) { $("#ask-status").textContent = "Error: " + err.message; }
+  finally { btn.disabled = false; }
+});
+
+// ---------- documents
+$("#token").value = store.get("adminToken");
+$("#token").addEventListener("change", () => store.set("adminToken", $("#token").value.trim()));
+let docOffset = 0; const PAGE = 25; let filterTimer;
+
+async function loadDocs() {
+  try {
+    const q = encodeURIComponent($("#doc-filter").value.trim());
+    const r = await api(`/documents?q=${q}&offset=${docOffset}&limit=${PAGE}`);
+    $("#doc-count").textContent = `${r.total.toLocaleString()} documents · ${docOffset + 1}–${Math.min(docOffset + PAGE, r.total)}`;
+    $("#doc-rows").innerHTML = r.items.map((d) => `
+      <tr><td><button class="chip" data-view="${esc(d.doc_id)}">${esc(d.title)}</button></td>
+      <td class="id hide-sm">${esc(d.doc_id)}</td><td>${d.n_chunks}</td>
+      <td><button class="btn" data-del="${esc(d.doc_id)}" aria-label="Delete ${esc(d.title)}">Delete</button></td></tr>`).join("");
+    $("#prev").disabled = docOffset === 0; $("#next").disabled = docOffset + PAGE >= r.total;
+  } catch (err) { $("#doc-count").textContent = "Error: " + err.message; }
+}
+$("#doc-filter").addEventListener("input", () => { clearTimeout(filterTimer); filterTimer = setTimeout(() => { docOffset = 0; loadDocs(); }, 250); });
+$("#prev").addEventListener("click", () => { docOffset = Math.max(0, docOffset - PAGE); loadDocs(); });
+$("#next").addEventListener("click", () => { docOffset += PAGE; loadDocs(); });
+
+$("#doc-rows").addEventListener("click", async (e) => {
+  const del = e.target.closest("[data-del]"); const view = e.target.closest("[data-view]");
+  if (del) {
+    if (!confirm(`Delete "${del.dataset.del}"? This removes it from the index.`)) return;
+    try { await api("/documents/" + encodeURIComponent(del.dataset.del), { method: "DELETE" }); loadDocs(); loadStats(); }
+    catch (err) { alert(err.message); }
+  } else if (view) {
+    const d = await api("/documents/" + encodeURIComponent(view.dataset.view));
+    $("#doc-view").innerHTML = `<div class="result"><span class="kicker">${esc(d.doc_id)} · ${esc(d.fmt)} · ${d.n_chunks} chunks</span>
+      <div class="q-echo">${esc(d.title)}</div>
+      ${d.chunks.map((c) => `<div class="src"><span class="lbl">#${c.position}</span><p style="margin-left:0">${esc(c.text)}</p></div>`).join("")}</div>`;
+    $("#doc-view").scrollIntoView({ block: "start" });
+  }
+});
+
+$("#upload-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  for (const f of $("#files").files) fd.append("files", f);
+  if ($("#strategy").value) fd.append("chunk_strategy", $("#strategy").value);
+  $("#upload-status").textContent = "Parsing, chunking and embedding…";
+  try {
+    const r = await api("/documents", { method: "POST", body: fd });
+    const c = r.counts;
+    $("#upload-status").textContent = `Added ${c.added}, updated ${c.updated}, unchanged ${c.unchanged} · ${r.chunks_added} chunks · ${r.duplicate_chunks_skipped} duplicate chunks skipped · ${r.seconds}s`;
+    $("#files").value = ""; loadDocs(); loadStats();
+  } catch (err) { $("#upload-status").textContent = "Error: " + err.message; }
+});
+
+// ---------- search
+$("#search-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("#search-status").textContent = "Searching…";
+  try {
+    const r = await api("/search", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: $("#search-q").value, mode: $("#search-mode").value, top_k: 10 }) });
+    $("#search-status").textContent = `${r.hits.length} hits · ${r.latency_s}s`;
+    $("#search-results").innerHTML = r.hits.map((h, i) => `
+      <div class="hit"><span class="kicker">${String(i + 1).padStart(2, "0")} · ${esc(h.doc_id)}</span>
+      <div class="ttl" style="font-weight:600;margin-top:4px">${esc(h.title)}</div>
+      <div class="ranks">rrf ${h.score.toFixed(4)} · ${Object.entries(h.ranks).map(([k, v]) => `${k} #${v}`).join(" · ")}</div>
+      <p style="margin:8px 0 0;color:var(--ink-mid)">${esc(h.text.slice(0, 500))}${h.text.length > 500 ? "…" : ""}</p></div>`).join("");
+  } catch (err) { $("#search-status").textContent = "Error: " + err.message; }
+});
+</script>
+</body>
+</html>

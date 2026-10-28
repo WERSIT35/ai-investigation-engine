@@ -1,0 +1,8 @@
+{
+  "doc_id": "syn::status-page-inc-1042",
+  "title": "Status page record — INC-1042 payment delays",
+  "type": "status-page",
+  "incident": "INC-1042",
+  "date": "2026-03-06",
+  "text": "Status page history for incident INC-1042. 2026-03-04 09:02 Investigating: some customers see delayed payment confirmations. 2026-03-05 13:40 Identified: the issue is linked to a recent database configuration change in the ledger service. 2026-03-06 11:05 Resolved: payment processing is back to normal after a rollback of the ledger service. About 9,800 transactions were delayed; none were lost."
+}
