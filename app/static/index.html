@@ -25,7 +25,7 @@
   --bg:#0a0a0a; --raised:#0d0f12; --ink:#ededed; --ink-mid:#b8b8b8; --ink-dim:#9a9a9a;
   --accent:#e0e0e0; --white:#fff; --on-white:#0a0a0a;
   --line:rgb(255 255 255 / 10%); --line-strong:rgb(255 255 255 / 20%); --fill:rgb(255 255 255 / 5%);
-  --slab:#e0e0e0; --slab-ink:#0a0a0a; --slab-dim:#3d3d3d; --ok:#3ccf6e;
+  --ok:#3ccf6e;
   --display:"Geist","Geist Fallback",system-ui,sans-serif;
   --sans:"Satoshi","Satoshi Fallback",system-ui,sans-serif;
   --mono:"Geist Mono",ui-monospace,Consolas,monospace;
@@ -37,95 +37,60 @@
   --bg:#f2f2f2; --raised:#fafafa; --ink:#0a0a0a; --ink-mid:#3b3b3b; --ink-dim:#5c5c5c;
   --accent:#161616; --white:#0a0a0a; --on-white:#f2f2f2;
   --line:rgb(0 0 0 / 10%); --line-strong:rgb(0 0 0 / 22%); --fill:rgb(0 0 0 / 4%);
-  --slab:#d4d4d4; --slab-ink:#0a0a0a; --slab-dim:#3d3d3d; --ok:#1d8a45;
+  --ok:#1d8a45;
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;
-  padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-@media (min-width:880px){body{padding-bottom:0}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--white);outline-offset:3px;border-radius:4px}
 ::selection{background:var(--white);color:var(--on-white)}
-.wrap{max-width:1360px;margin:0 auto;padding:0 16px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
 @media (min-width:880px){.wrap{padding:0 48px}}
 .kicker{font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ink-dim);opacity:.6;flex:none}
 .dot.on{background:var(--ok);opacity:1;box-shadow:0 0 0 3px rgb(60 207 110 / 18%)}
 
-/* ---------- dynamic island: top-centre on desktop, docked bottom on phones */
-.island{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));
-  display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;
-  background:rgb(13 15 18 / 94%);border:1px solid var(--line-strong);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
-  max-width:calc(100vw - 24px)}
-:root[data-theme="light"] .island{background:rgb(250 250 250 / 94%)}
-@media (min-width:880px){.island{top:16px;bottom:auto}}
-.brand{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:50%;background:var(--white);color:var(--on-white);
-  font:700 13px/1 var(--display);letter-spacing:-.02em;text-decoration:none}
-.tabs{display:flex;gap:2px;overflow:hidden;max-width:520px;transition:max-width .5s var(--spring),opacity .3s var(--ease)}
-.tabs button{flex:none;display:flex;align-items:center;gap:6px;background:none;border:0;border-radius:999px;cursor:pointer;
-  min-height:38px;padding:0 12px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mid);white-space:nowrap;
-  transition:background-color .2s,color .2s}
-.tabs button b{font-weight:500}
-.tabs button:hover{color:var(--ink)}
-.tabs button[aria-selected="true"]{background:var(--fill);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong)}
-.cur{max-width:0;overflow:hidden;opacity:0;white-space:nowrap;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);
-  transition:max-width .5s var(--spring),opacity .3s var(--ease)}
-.island .dot{margin:0 10px 0 6px}
-@media (max-width:420px){.tabs button{padding:0 9px}.tabs button b{display:none}}
-/* Compact after the hero on desktop; expands again on hover or keyboard focus. */
-@media (min-width:880px){
-  /* Sequenced so the two labels never overlap: outgoing fades first, incoming fades in after. */
-  .island .tabs{transition:max-width .5s var(--spring),opacity .2s .18s var(--ease)}
-  .island .cur{transition:max-width .5s var(--spring),opacity .12s var(--ease)}
-  .island.compact:not(:hover):not(:focus-within) .tabs{max-width:0;opacity:0;transition:max-width .5s var(--spring),opacity .12s var(--ease)}
-  .island.compact:not(:hover):not(:focus-within) .cur{max-width:200px;opacity:1;padding:0 4px 0 10px;transition:max-width .5s var(--spring),opacity .2s .18s var(--ease)}
-}
-
-/* ---------- hero: the one signature moment */
-.hero{position:relative;background:var(--bg);overflow:hidden}
-.bar{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-top:20px;padding-bottom:16px;
-  border-bottom:1px solid var(--line)}
-@media (min-width:880px){.bar{padding-top:30px}}
-.bar-r{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+/* ---------- header */
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-top:18px;padding-bottom:14px}
+.mark{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.mark strong{font:700 17px/1 var(--display);letter-spacing:-.02em}
+.top-r{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .status-line{display:flex;gap:16px;align-items:center;min-height:18px}
 .status-line > span{display:inline-flex;align-items:center;gap:8px}
 .theme{background:none;border:1px solid var(--line-strong);border-radius:999px;padding:0 12px;min-height:32px;cursor:pointer;
   font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mid)}
 .theme:hover{color:var(--ink);border-color:var(--ink-dim)}
-.stage-hero{position:relative;display:flex;flex-direction:column;padding-top:40px;padding-bottom:32px}
-.slab{order:2;position:relative;align-self:flex-end;width:78%;margin-top:-64px;padding:96px 16px 16px;border-radius:12px;
-  background:var(--slab);color:var(--slab-ink);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-@media (min-width:880px){
-  .stage-hero{display:grid;grid-template-rows:1fr auto;min-height:calc(88svh - 70px);padding-top:48px;padding-bottom:40px}
-  .slab{position:absolute;right:48px;top:56px;bottom:40px;width:38%;margin:0;padding:24px;align-self:auto}
-}
-.slab .kicker{color:var(--slab-dim)}
-.slab ol{list-style:none;margin:12px 0 0;padding:0;font:400 12px/1.5 var(--mono)}
-.slab li{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:8px 0;border-top:1px solid rgb(127 127 127 / 30%)}
-.slab li span:first-child{color:var(--slab-dim)}
-.slab .spec{font:700 clamp(40px,5vw,72px)/.9 var(--display);letter-spacing:-.04em;margin:0 0 4px}
-h1{order:1;position:relative;z-index:1;align-self:start;margin:0;color:#fff;mix-blend-mode:difference;
-  font:700 clamp(56px,8.2vw,152px)/.9 var(--display);letter-spacing:-.04em}
+.intro{display:grid;gap:16px 48px;padding-top:40px;padding-bottom:32px;border-top:1px solid var(--line)}
+@media (min-width:880px){.intro{grid-template-columns:1fr minmax(0,40ch);align-items:end;padding-top:56px;padding-bottom:40px}}
+h1{margin:0;font:700 clamp(40px,5.4vw,80px)/.95 var(--display);letter-spacing:-.04em}
 h1 span{display:block}
-h1 span + span{color:#8a8a8a}
-/* Light theme: plain ink over a mid-grey slab (difference blending only reads on dark). */
-:root[data-theme="light"] h1{color:var(--ink);mix-blend-mode:normal}
-:root[data-theme="light"] h1 span + span{color:#555}
-.lede{order:3;position:relative;z-index:1;display:grid;gap:24px;align-items:end;margin-top:32px}
-.lede p{margin:0;max-width:44ch;color:var(--ink-mid);font-size:17px}
-@media (min-width:880px){.lede{grid-template-columns:minmax(0,44ch) auto;justify-content:start;column-gap:48px;margin-top:48px;max-width:56%}}
+h1 span + span{color:var(--ink-dim)}
+.intro p{margin:0;color:var(--ink-mid);font-size:16px}
 
-/* ---------- stages: each tab is a full-viewport sheet */
-main{position:relative;z-index:2}
-.stage{min-height:100svh;background:var(--raised);border-top:1px solid var(--line-strong);border-radius:1.5rem 1.5rem 0 0;
-  padding:32px 0 120px;margin-top:-1.5rem}
-.stage[hidden]{display:none}
-.stage-head{display:flex;justify-content:space-between;align-items:end;gap:8px 16px;flex-wrap:wrap;padding-bottom:20px;margin-bottom:40px;
+/* ---------- tab bar: sticky segmented control */
+.tabbar{position:sticky;top:0;z-index:20;background:rgb(10 10 10 / 88%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4)}
+:root[data-theme="light"] .tabbar{background:rgb(242 242 242 / 90%)}
+.tabbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
+.tabs{display:inline-flex;gap:2px;padding:4px;border-radius:999px;border:1px solid var(--line-strong);overflow-x:auto;scrollbar-width:none;max-width:100%}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:flex;align-items:center;gap:8px;background:none;border:0;border-radius:999px;cursor:pointer;
+  min-height:38px;padding:0 14px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mid);white-space:nowrap;
+  transition:background-color .2s,color .2s}
+.tabs button b{font-weight:500}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--white);color:var(--on-white)}
+@media (max-width:420px){.tabs button{padding:0 11px}.tabs button b{display:none}}
+
+/* ---------- sections */
+main.wrap{padding-top:40px;padding-bottom:120px}
+section[hidden]{display:none}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:8px 16px;flex-wrap:wrap;padding-bottom:16px;margin-bottom:32px;
   border-bottom:1px solid var(--line)}
-.stage-head h2{font:700 clamp(28px,2.6vw,40px)/1 var(--display);letter-spacing:-.03em;margin:10px 0 0}
+.sec-head h2{font:700 clamp(24px,2.4vw,34px)/1 var(--display);letter-spacing:-.03em;margin:8px 0 0}
 .row{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
 .spread{justify-content:space-between}
 
@@ -164,7 +129,7 @@ select{width:auto;padding-right:32px}
 /* ---------- result */
 .result{margin-top:56px;border-top:1px solid var(--line-strong);padding-top:24px}
 .result-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.q-echo{font:700 clamp(30px,4.4vw,64px)/1 var(--display);letter-spacing:-.04em;margin:16px 0 24px;max-width:24ch}
+.q-echo{font:700 clamp(24px,2.6vw,38px)/1.1 var(--display);letter-spacing:-.03em;margin:12px 0 20px;max-width:36ch}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
 .badge{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-strong);
   border-radius:999px;padding:6px 10px;color:var(--ink-mid)}
@@ -257,6 +222,7 @@ h3.blk{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--m
 :root[data-theme="light"] .grain{filter:invert(1);opacity:.045}
 
 @media (max-width:600px){
+  .hide-sm{display:none}
   .answer{font-size:17px}
   .src p{margin-left:0}
   .q-echo{max-width:none}
@@ -269,66 +235,43 @@ h3.blk{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--m
 
 /* ---------- motion: content is visible on the first frame; everything off under reduced motion */
 @media (prefers-reduced-motion: no-preference){
-  h1 span{animation:rise .9s var(--ease) both}
-  h1 span + span{animation-delay:.06s}
-  .slab{animation:settle 1.2s var(--ease) both}
-  @keyframes rise{from{transform:translateY(14%)}to{transform:none}}
-  @keyframes settle{from{transform:scale(1.06)}to{transform:none}}
   .reveal{animation:up .5s var(--ease) both}
   .reveal .grid{animation:up .6s .08s var(--ease) both}
   @keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-  @supports (animation-timeline: view()){
-    .stage-hero{animation:sink linear both;animation-timeline:view();animation-range:exit 0% exit 100%}
-    @keyframes sink{to{transform:translateY(12%) scale(.95);opacity:.35}}
-  }
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}.grain{display:none}}
 </style>
 </head>
 <body>
-<nav class="island" id="island" aria-label="Sections">
-  <a class="brand" href="#top">OD<span class="sr">, Investigation Engine, back to top</span></a>
-  <span class="cur" id="cur" aria-hidden="true">01 Investigate</span>
-  <div class="tabs" role="tablist" aria-label="Sections">
-    <button role="tab" aria-selected="true" aria-controls="tab-ask" id="t-ask" data-tab="ask"><b>01</b>Investigate</button>
-    <button role="tab" aria-selected="false" aria-controls="tab-docs" id="t-docs" data-tab="docs" tabindex="-1"><b>02</b>Documents</button>
-    <button role="tab" aria-selected="false" aria-controls="tab-search" id="t-search" data-tab="search" tabindex="-1"><b>03</b>Search</button>
-  </div>
-  <span class="dot" id="llm-dot" role="img" aria-label="LLM status loading"></span>
-</nav>
-
-<header class="hero" id="top">
-  <div class="wrap bar">
-    <span class="kicker">Tbilisi, Georgia · <span id="clock">--:--</span> local</span>
-    <div class="bar-r">
+<header>
+  <div class="wrap top">
+    <div class="mark"><strong>Investigation Engine</strong><span class="kicker">Hybrid RAG · cited answers</span></div>
+    <div class="top-r">
       <span class="kicker status-line" id="stats" aria-live="polite"><span>Loading index…</span></span>
       <button class="theme" id="theme" type="button"><span class="sr">Switch to </span><span id="theme-name">Light</span><span class="sr"> theme</span></button>
     </div>
   </div>
-  <div class="wrap stage-hero">
-    <div class="slab" aria-hidden="true">
-      <span class="kicker">// Pipeline</span>
-      <p class="spec">BM25 + Dense</p>
-      <ol>
-        <li><span>01</span><span>BM25 lexical index</span></li>
-        <li><span>02</span><span id="slab-embedder">Dense embeddings</span></li>
-        <li><span>03</span><span>Reciprocal rank fusion</span></li>
-        <li><span>04</span><span>Agent: search_documents → read_document → cited answer</span></li>
-      </ol>
-    </div>
+  <div class="wrap intro">
     <h1><span>Ask the archive.</span><span>Get the evidence.</span></h1>
-    <div class="lede">
-      <p>Multi-hop questions over the whole document collection. Every claim is cited, conflicting sources are shown side by side, and when the evidence isn't there the engine says so.</p>
-      <a class="btn primary" href="#tab-ask" id="start">Start investigating ↓</a>
-    </div>
+    <p>Multi-hop questions over the whole document collection. Every claim is cited, conflicting sources are shown side by side, and when the evidence isn't there the engine says so.</p>
   </div>
 </header>
 
-<main>
+<nav class="tabbar" aria-label="Sections">
+  <div class="wrap">
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" aria-selected="true" aria-controls="tab-ask" id="t-ask" data-tab="ask"><b>01</b>Investigate</button>
+      <button role="tab" aria-selected="false" aria-controls="tab-docs" id="t-docs" data-tab="docs" tabindex="-1"><b>02</b>Documents</button>
+      <button role="tab" aria-selected="false" aria-controls="tab-search" id="t-search" data-tab="search" tabindex="-1"><b>03</b>Search</button>
+    </div>
+    <span class="kicker hide-sm">BM25 + dense · RRF</span>
+  </div>
+</nav>
+
+<main class="wrap">
   <!-- ======================= INVESTIGATE ======================= -->
-  <section id="tab-ask" class="stage" role="tabpanel" aria-labelledby="t-ask">
-    <div class="wrap">
-      <div class="stage-head"><div><span class="kicker">01 / Investigate</span><h2>Ask a question</h2></div><span class="kicker" data-meta></span></div>
+  <section id="tab-ask" role="tabpanel" aria-labelledby="t-ask">
+      <div class="sec-head"><div><span class="kicker">01 / Investigate</span><h2>Ask a question</h2></div></div>
       <form id="ask-form">
         <label class="kicker" for="question">Question</label>
         <textarea id="question" class="q-field" required minlength="3" rows="3" placeholder="Which system change caused the payment processing delays in March?"></textarea>
@@ -346,13 +289,11 @@ h3.blk{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--m
         <ol class="index" id="examples"></ol>
       </div>
       <div id="ask-result"></div>
-    </div>
   </section>
 
   <!-- ======================= DOCUMENTS ======================= -->
-  <section id="tab-docs" class="stage" role="tabpanel" aria-labelledby="t-docs" hidden>
-    <div class="wrap">
-      <div class="stage-head"><div><span class="kicker">02 / Documents</span><h2>The collection</h2></div><span class="kicker" data-meta></span></div>
+  <section id="tab-docs" role="tabpanel" aria-labelledby="t-docs" hidden>
+      <div class="sec-head"><div><span class="kicker">02 / Documents</span><h2>The collection</h2></div></div>
       <div class="add">
         <div>
           <h3>Add evidence</h3>
@@ -389,13 +330,11 @@ h3.blk{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--m
         <button class="btn small" id="prev">← Prev</button><button class="btn small" id="next">Next →</button>
       </div>
       <div id="doc-view"></div>
-    </div>
   </section>
 
   <!-- ======================= SEARCH ======================= -->
-  <section id="tab-search" class="stage" role="tabpanel" aria-labelledby="t-search" hidden>
-    <div class="wrap">
-      <div class="stage-head"><div><span class="kicker">03 / Search</span><h2>Raw retrieval</h2></div><span class="kicker" data-meta></span></div>
+  <section id="tab-search" role="tabpanel" aria-labelledby="t-search" hidden>
+      <div class="sec-head"><div><span class="kicker">03 / Search</span><h2>Raw retrieval</h2></div></div>
       <form id="search-form" class="search-bar">
         <input type="text" id="search-q" placeholder="Raw retrieval, no LLM" required aria-label="Search query">
         <select id="search-mode" aria-label="Retrieval mode"><option value="hybrid">Hybrid</option><option value="dense">Dense</option><option value="bm25">BM25</option></select>
@@ -403,7 +342,6 @@ h3.blk{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--m
       </form>
       <div class="status" id="search-status" aria-live="polite"></div>
       <div id="search-results"></div>
-    </div>
   </section>
 </main>
 
@@ -437,48 +375,29 @@ $("#theme").addEventListener("click", () => {
 });
 paintTheme();
 
-// ---------- live local time
-const clock = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tbilisi" });
-const tick = () => { $("#clock").textContent = clock.format(new Date()); };
-tick(); setInterval(tick, 15000);
-
-// ---------- tabs (click + arrow keys) in the island
-const tabs = [...document.querySelectorAll("#island [role=tab]")];
-function selectTab(b, focus = false, scroll = false) {
+// ---------- tabs (click + arrow keys)
+const tabs = [...document.querySelectorAll(".tabs [role=tab]")];
+function selectTab(b, focus = false) {
   tabs.forEach((x) => { const on = x === b; x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
   document.querySelectorAll("main > section").forEach((s) => s.hidden = s.id !== "tab-" + b.dataset.tab);
-  $("#cur").textContent = b.textContent.replace(/^(\d\d)/, "$1 ");
   if (focus) b.focus();
-  if (scroll) $("#tab-" + b.dataset.tab).scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
   if (b.dataset.tab === "docs") loadDocs();
 }
 tabs.forEach((b, i) => {
-  b.addEventListener("click", () => selectTab(b, false, true));
+  b.addEventListener("click", () => selectTab(b));
   b.addEventListener("keydown", (e) => {
     const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
     if (d) { e.preventDefault(); selectTab(tabs[(i + d + tabs.length) % tabs.length], true); }
   });
 });
-$("#start").addEventListener("click", (e) => {
-  e.preventDefault(); selectTab(tabs[0], false, true); $("#question").focus({ preventScroll: true });
-});
-
-// Island compacts once the hero is out of view.
-new IntersectionObserver(([e]) => $("#island").classList.toggle("compact", !e.isIntersecting), { rootMargin: "-40% 0px 0px 0px" })
-  .observe($(".stage-hero"));
-
 // ---------- stats
 async function loadStats() {
   try {
     const h = await api("/health");
     const meta = `${h.documents.toLocaleString()} docs · ${h.chunks.toLocaleString()} chunks`;
     $("#stats").innerHTML = `<span>${meta}</span><span><span class="dot ${h.llm ? "on" : ""}"></span>LLM ${h.llm ? "on" : "off"}</span>`;
-    document.querySelectorAll("[data-meta]").forEach((el) => el.textContent = meta);
-    $("#llm-dot").className = "dot" + (h.llm ? " on" : ""); $("#llm-dot").setAttribute("aria-label", "LLM " + (h.llm ? "on" : "off"));
-    if (h.embedder) $("#slab-embedder").textContent = "Dense · " + h.embedder.split("/").pop();
   } catch {
     $("#stats").innerHTML = `<span><span class="dot"></span>Index unavailable</span>`;
-    $("#llm-dot").setAttribute("aria-label", "Index unavailable");
   }
 }
 loadStats();
