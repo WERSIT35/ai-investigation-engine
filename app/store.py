@@ -1,11 +1,31 @@
 """Thin wrapper over Qdrant (cloud, local on-disk, or in-memory). The source of truth for chunks."""
 from __future__ import annotations
 
+import threading
 from typing import Any, Iterator
 
 from qdrant_client import QdrantClient, models as qm
 
 from .models import Chunk
+
+
+class _Serialized:
+    """Runs every client call under one lock. Qdrant's local mode (in-memory / on-disk) is not thread-safe;
+    the server (Qdrant Cloud) is, so the remote client is used directly."""
+
+    def __init__(self, client: QdrantClient):
+        self._client = client
+        self._lock = threading.Lock()
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._client, name)
+        if not callable(attr):
+            return attr
+
+        def call(*args: Any, **kwargs: Any) -> Any:
+            with self._lock:
+                return attr(*args, **kwargs)
+        return call
 
 
 class VectorStore:
@@ -15,9 +35,9 @@ class VectorStore:
         if url:
             self.client = QdrantClient(url=url, api_key=api_key, timeout=60)
         elif path == ":memory:" or not path:
-            self.client = QdrantClient(location=":memory:")
+            self.client = _Serialized(QdrantClient(location=":memory:"))
         else:
-            self.client = QdrantClient(path=path)
+            self.client = _Serialized(QdrantClient(path=path))
         self.collection = collection
         self.dim = dim
         self._ensure_collection()
@@ -59,18 +79,24 @@ class VectorStore:
             wait=True,
         )
 
-    def existing_hashes(self, hashes: list[str]) -> set[str]:
-        found: set[str] = set()
+    def hash_owners(self, hashes: list[str]) -> dict[str, set[str]]:
+        """content_hash -> ids of the documents that already store a chunk with that hash."""
+        owners: dict[str, set[str]] = {}
         uniq = list(dict.fromkeys(hashes))
         for i in range(0, len(uniq), 256):
-            part = uniq[i:i + 256]
-            points, _ = self.client.scroll(
-                self.collection,
-                scroll_filter=qm.Filter(must=[qm.FieldCondition(key="content_hash", match=qm.MatchAny(any=part))]),
-                limit=len(part) * 4, with_payload=["content_hash"], with_vectors=False,
-            )
-            found.update(p.payload["content_hash"] for p in points)
-        return found
+            flt = qm.Filter(must=[qm.FieldCondition(key="content_hash", match=qm.MatchAny(any=uniq[i:i + 256]))])
+            offset = None
+            while True:  # paginate: one hash can be owned by several documents
+                points, offset = self.client.scroll(self.collection, scroll_filter=flt, limit=512, offset=offset,
+                                                    with_payload=["content_hash", "doc_id"], with_vectors=False)
+                for p in points:
+                    owners.setdefault(p.payload["content_hash"], set()).add(p.payload["doc_id"])
+                if offset is None:
+                    break
+        return owners
+
+    def delete_ids(self, ids: list[str]) -> None:
+        self.client.delete(self.collection, points_selector=qm.PointIdsList(points=ids), wait=True)
 
     def search(self, vector: list[float], limit: int, doc_ids: list[str] | None = None) -> list[tuple[str, float]]:
         flt = None

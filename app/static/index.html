@@ -556,7 +556,7 @@ $("#upload-form").addEventListener("submit", async (e) => {
   try {
     const r = await api("/documents", { method: "POST", body: fd });
     const c = r.counts;
-    say($("#upload-status"), `Added ${c.added} · updated ${c.updated} · unchanged ${c.unchanged} · ${r.chunks_added} chunks · ${r.duplicate_chunks_skipped} duplicate chunks skipped · ${r.seconds}s`);
+    say($("#upload-status"), `Added ${c.added} · updated ${c.updated} · unchanged ${c.unchanged}${c.duplicate_docs ? ` · ${c.duplicate_docs} skipped (content already stored in other documents)` : ""} · ${r.chunks_added} chunks · ${r.duplicate_chunks_skipped} duplicate chunks skipped · ${r.seconds}s`);
     $("#files").value = ""; showPicked(); loadDocs(); loadStats();
   } catch (err) { say($("#upload-status"), "Error: " + err.message, true); }
 });

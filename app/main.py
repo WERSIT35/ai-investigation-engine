@@ -154,7 +154,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None,
 
     @app.get("/documents")
     def list_documents(q: str = "", offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=500)):
-        docs = list(eng().docs.values())
+        docs = eng().list_docs()
         if q:
             ql = q.lower()
             docs = [d for d in docs if ql in d.title.lower() or ql in d.doc_id.lower()]
