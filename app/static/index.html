@@ -5,84 +5,204 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Investigation Engine</title>
 <meta name="description" content="Ask multi-hop questions over a large document collection and get cited, conflict-aware answers.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="/static/fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/instrument-serif-400-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/instrument-sans-400-600.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Self-hosted, Latin subset (SIL OFL fonts). */
+@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/instrument-serif-400.woff2) format("woff2")}
+@font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;font-display:swap;src:url(/static/fonts/instrument-serif-400-italic.woff2) format("woff2")}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 600;font-display:swap;src:url(/static/fonts/instrument-sans-400-600.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/ibm-plex-mono-400.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/static/fonts/ibm-plex-mono-500.woff2) format("woff2")}
+/* Metric-matched fallbacks so the swap doesn't shift layout. */
+@font-face{font-family:"Serif Fallback";src:local("Times New Roman"),local("Georgia");size-adjust:88%;ascent-override:96%;descent-override:26%}
+@font-face{font-family:"Sans Fallback";src:local("Arial");size-adjust:97%;ascent-override:96%;descent-override:25%}
+
 :root{
-  --bg:#f3f1ec; --paper:#fbfaf7; --ink:#151515; --ink-mid:#4a4a46; --ink-dim:#6b6a64;
+  --bg:#f3f1ec; --paper:#fbfaf7; --ink:#151515; --ink-mid:#4a4a46; --ink-dim:#65645e;
   --line:rgb(21 21 21 / 12%); --line-strong:rgb(21 21 21 / 28%);
-  --accent:#b8360f; --accent-soft:rgb(184 54 15 / 9%);
-  --serif:"Instrument Serif", Georgia, serif; --sans:"Instrument Sans", system-ui, sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  --accent:#b8360f; --accent-soft:rgb(184 54 15 / 9%); --ok:#2f6b3a;
+  --serif:"Instrument Serif","Serif Fallback",Georgia,serif;
+  --sans:"Instrument Sans","Sans Fallback",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#121211; --paper:#191917; --ink:#ecebe6; --ink-mid:#c2c0b8; --ink-dim:#9b9a92;
     --line:rgb(255 255 255 / 10%); --line-strong:rgb(255 255 255 / 24%);
-    --accent:#ff7a4d; --accent-soft:rgb(255 122 77 / 12%);
+    --accent:#ff7a4d; --accent-soft:rgb(255 122 77 / 12%); --ok:#7cc48a;
   }
 }
+:root[data-theme="dark"]{
+  --bg:#121211; --paper:#191917; --ink:#ecebe6; --ink-mid:#c2c0b8; --ink-dim:#9b9a92;
+  --line:rgb(255 255 255 / 10%); --line-strong:rgb(255 255 255 / 24%);
+  --accent:#ff7a4d; --accent-soft:rgb(255 122 77 / 12%); --ok:#7cc48a;
+}
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+@media (min-width:880px){.wrap{padding:0 48px}}
 .kicker{font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
-header{border-bottom:1px solid var(--line);padding:24px 0 16px}
-.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
-h1{font:400 clamp(40px,7vw,84px)/.92 var(--serif);letter-spacing:-.02em;margin:12px 0 0}
-h1 em{color:var(--accent)}
-nav{display:flex;gap:4px;margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
-nav button{background:none;border:1px solid transparent;border-radius:999px;padding:8px 16px;cursor:pointer;
-  font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);min-height:40px}
-nav button[aria-selected="true"]{border-color:var(--line-strong);color:var(--ink)}
-main{padding:32px 0 96px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- header: the one signature moment is the headline */
+header{padding:20px 0 0}
+.top{display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;align-items:center;
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+.status-line{display:flex;gap:12px;align-items:center;min-height:18px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ink-dim);margin-right:6px;vertical-align:1px}
+.dot.on{background:var(--ok)} .dot.off{background:var(--accent)}
+h1{font:400 clamp(56px,10.4vw,164px)/.86 var(--serif);letter-spacing:-.035em;margin:32px 0 0}
+h1 span{display:block}
+h1 em{color:var(--accent);font-style:italic}
+.lede{display:grid;gap:16px;margin:24px 0 0;padding-bottom:32px;border-bottom:1px solid var(--line-strong)}
+.lede p{margin:0;max-width:52ch;color:var(--ink-mid)}
+@media (min-width:880px){.lede{grid-template-columns:1fr auto;align-items:end}}
+
+nav{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
+  padding:14px 20px 12px 0;margin-right:16px;cursor:pointer;min-height:48px;
+  font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
+nav button b{font-weight:500;color:var(--ink-dim);margin-right:8px}
+nav button:hover{color:var(--ink)}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav button[aria-selected="true"] b{color:var(--accent)}
+
+main{padding:40px 0 120px}
 section[hidden]{display:none}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+
+/* ---------- inputs */
 textarea,input[type=text],input[type=password],select{background:var(--paper);border:1px solid var(--line-strong);
-  border-radius:8px;padding:12px;width:100%}
-textarea{min-height:96px;resize:vertical;font-size:18px}
-select{width:auto}
-.btn{border-radius:999px;padding:10px 20px;border:1px solid var(--line-strong);background:transparent;cursor:pointer;min-height:44px}
+  border-radius:8px;padding:12px 14px;width:100%;min-height:44px}
+input:hover,select:hover,textarea:hover{border-color:var(--ink-dim)}
+select{width:auto;padding-right:32px}
+.q-field{display:block;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;background:transparent;
+  padding:8px 0 16px;min-height:120px;resize:vertical;font:400 clamp(24px,3vw,36px)/1.2 var(--serif);letter-spacing:-.01em}
+.q-field:hover{border-color:var(--ink-dim)}
+.q-field:focus-visible{outline:0;border-bottom:2px solid var(--accent);padding-bottom:15px}
+.q-field::placeholder{color:var(--ink-dim);opacity:.8}
+.btn{border-radius:999px;padding:10px 22px;border:1px solid var(--line-strong);background:transparent;cursor:pointer;
+  min-height:44px;font-weight:500;transition:background-color .2s,border-color .2s,color .2s}
+.btn:hover{border-color:var(--ink)}
 .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
-.btn:disabled{opacity:.5;cursor:wait}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
-.chip{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:none;cursor:pointer;color:var(--ink-mid);text-align:left}
-.chip:hover{border-color:var(--line-strong);color:var(--ink)}
-.result{margin-top:40px;border-top:1px solid var(--line-strong);padding-top:24px}
-.q-echo{font:400 clamp(28px,4.4vw,48px)/1.05 var(--serif);letter-spacing:-.01em;margin:8px 0 24px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.badge{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:999px;padding:4px 10px;color:var(--ink-mid)}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn.danger{color:var(--accent);border-color:var(--accent)}
+.btn.small{min-height:36px;padding:6px 14px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn[aria-busy="true"]{cursor:progress}
+.tools{margin-top:16px}
+
+/* ---------- examples as an index list */
+.examples{margin-top:40px}
+.examples ol{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid var(--line)}
+.ex{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:baseline;width:100%;text-align:left;
+  background:none;border:0;border-bottom:1px solid var(--line);padding:14px 0;cursor:pointer;color:var(--ink-mid);min-height:48px}
+.ex .n{font:500 12px var(--mono);color:var(--ink-dim)}
+.ex .go{font:500 13px var(--mono);color:var(--ink-dim);transition:transform .25s var(--ease),color .2s}
+.ex:hover{color:var(--ink)} .ex:hover .go{color:var(--accent);transform:translateX(4px)}
+
+/* ---------- result */
+.result{margin-top:56px;border-top:1px solid var(--line-strong);padding-top:24px}
+.result-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.q-echo{font:400 clamp(32px,4.6vw,60px)/1.02 var(--serif);letter-spacing:-.02em;margin:16px 0 24px;max-width:22ch}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.badge{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-strong);
+  border-radius:999px;padding:6px 10px;color:var(--ink-mid)}
 .badge.warn{border-color:var(--accent);color:var(--accent)}
-.answer{font-size:19px;line-height:1.6;max-width:68ch;white-space:pre-wrap}
-.short{font:500 13px var(--mono);color:var(--ink-dim);margin-top:12px}
-.cite{font:500 11px var(--mono);color:var(--accent);background:var(--accent-soft);border:0;border-radius:4px;padding:1px 4px;margin:0 1px;cursor:pointer;vertical-align:2px}
-.grid{display:grid;grid-template-columns:1fr;gap:32px;margin-top:40px}
-@media (min-width:880px){.grid{grid-template-columns:3fr 2fr}}
-h2{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 12px;
-  padding-bottom:8px;border-bottom:1px solid var(--line)}
-.src{border-bottom:1px solid var(--line);padding:12px 0}
-.src summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:baseline}
+.answer{font-size:19px;line-height:1.6;max-width:66ch;white-space:pre-wrap;margin:0}
+.short{display:flex;gap:12px;align-items:baseline;margin-top:20px;padding:12px 0;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);max-width:66ch}
+.short strong{font:500 17px var(--sans)}
+.cite{font:500 11px var(--mono);color:var(--accent);background:var(--accent-soft);border:0;border-radius:4px;
+  padding:2px 5px;margin:0 1px;cursor:pointer;vertical-align:2px;min-height:0}
+.cite:hover{background:var(--accent);color:var(--bg)}
+.grid{display:grid;grid-template-columns:1fr;gap:48px;margin-top:56px}
+@media (min-width:880px){.grid{grid-template-columns:3fr 2fr;gap:64px}}
+h2{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-dim);margin:0;padding-bottom:10px;border-bottom:1px solid var(--line-strong)}
+h2 + *{margin-top:0}
+.block + .block{margin-top:40px}
+.src{border-bottom:1px solid var(--line);transition:background-color .6s}
+.src summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:baseline;padding:14px 0}
 .src summary::-webkit-details-marker{display:none}
-.src .lbl{font:500 12px var(--mono);color:var(--accent);min-width:32px}
-.src .ttl{font-weight:600}
+.src summary .tog{font:500 13px var(--mono);color:var(--ink-dim);transition:transform .25s var(--ease)}
+.src[open] summary .tog{transform:rotate(45deg)}
+.src .lbl{font:500 12px var(--mono);color:var(--accent)}
+.src .ttl{font-weight:600;display:block}
 .src .meta{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
-.src p{margin:8px 0 0 44px;color:var(--ink-mid);font-size:15px;white-space:pre-wrap}
+.src p{margin:0 0 16px 56px;color:var(--ink-mid);font-size:15px;white-space:pre-wrap;max-width:68ch}
 .src.flash{background:var(--accent-soft)}
-.conflict{border-left:2px solid var(--accent);padding:4px 0 4px 12px;margin:0 0 12px}
-.trace{font:13px/1.6 var(--mono);color:var(--ink-mid);margin:0;padding:0;list-style:none}
-.trace li{border-bottom:1px solid var(--line);padding:6px 0}
+.conflict{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.conflict .lbl{font:500 12px var(--mono);color:var(--accent)}
+.trace{counter-reset:t;font:13px/1.55 var(--mono);color:var(--ink-mid);margin:0;padding:0;list-style:none}
+.trace li{display:grid;grid-template-columns:32px 1fr;gap:8px;border-bottom:1px solid var(--line);padding:10px 0}
+.trace li::before{counter-increment:t;content:counter(t,decimal-leading-zero);color:var(--ink-dim)}
+.trace .tool{color:var(--ink)}
+.usage{font:12px/1.6 var(--mono);color:var(--ink-dim);margin:12px 0 0}
 .muted{color:var(--ink-dim);font-size:14px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
+.status{min-height:24px;font:13px/1.5 var(--mono);color:var(--ink-mid);margin-top:16px}
+.status.err{color:var(--accent)}
+
+/* ---------- documents */
+.add{display:grid;gap:24px;padding-bottom:40px;margin-bottom:40px;border-bottom:1px solid var(--line-strong)}
+@media (min-width:880px){.add{grid-template-columns:1fr 2fr;gap:48px}}
+.add h3{font:400 clamp(32px,3.6vw,48px)/1 var(--serif);letter-spacing:-.02em;margin:0 0 12px}
+.add .muted{margin:0;max-width:40ch}
+.drop{display:grid;place-items:center;gap:4px;text-align:center;border:1px dashed var(--line-strong);border-radius:12px;
+  padding:28px 16px;background:var(--paper);cursor:pointer;transition:border-color .2s,background-color .2s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.drop strong{font-weight:600}
+.fields{display:grid;gap:12px;margin-top:16px}
+@media (min-width:600px){.fields{grid-template-columns:auto 1fr auto;align-items:end}}
+.field{display:grid;gap:6px}
+.field input{max-width:none}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);border-bottom-color:var(--line-strong)}
+td.num,th.num{font-family:var(--mono);font-size:13px;text-align:right}
+td.act{text-align:right;padding-right:0;white-space:nowrap}
 td.id{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
-.hit{border-bottom:1px solid var(--line);padding:16px 0}
-.hit .ranks{font:12px var(--mono);color:var(--ink-dim)}
-.status{min-height:24px;font-size:14px;color:var(--ink-mid);margin-top:8px}
-.panel{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--paper);margin-bottom:24px}
-@media (max-width:600px){.answer{font-size:17px} td.hide-sm,th.hide-sm{display:none}}
+.link{background:none;border:0;padding:4px 0;cursor:pointer;text-align:left;font-weight:500;color:var(--ink);
+  text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:4px;min-height:36px}
+.link:hover{text-decoration-color:var(--accent)}
+.pager{margin-top:16px}
+
+/* ---------- search */
+.search-bar{display:grid;gap:12px}
+@media (min-width:600px){.search-bar{grid-template-columns:1fr auto auto}}
+.hits{margin-top:24px;border-top:1px solid var(--line-strong)}
+.hit{display:grid;grid-template-columns:44px 1fr;gap:12px;border-bottom:1px solid var(--line);padding:18px 0}
+.hit .n{font:500 12px var(--mono);color:var(--ink-dim);padding-top:3px}
+.hit .ttl{font-weight:600}
+.ranks{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.rank{font:500 11px/1 var(--mono);letter-spacing:.04em;padding:4px 7px;border-radius:4px;background:var(--accent-soft);color:var(--ink-mid)}
+.rank.score{background:none;border:1px solid var(--line);color:var(--ink-dim)}
+.hit p{margin:10px 0 0;color:var(--ink-mid);max-width:72ch}
+
+@media (max-width:600px){
+  .answer{font-size:17px}
+  td.hide-sm,th.hide-sm{display:none}
+  .src p{margin-left:0}
+  .q-echo{max-width:none}
+}
+
+/* ---------- motion: results settle in; never on first paint, never under reduced motion */
+@media (prefers-reduced-motion: no-preference){
+  .reveal{animation:rise .5s var(--ease) both}
+  .reveal .grid{animation:rise .6s .08s var(--ease) both}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -91,73 +211,92 @@ td.id{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
   <div class="wrap">
     <div class="top">
       <span class="kicker">Case file / AI investigation engine</span>
-      <span class="kicker" id="stats">Loading index…</span>
+      <span class="kicker status-line" id="stats" aria-live="polite"><span><span class="dot"></span>Loading index…</span></span>
     </div>
-    <h1>Ask the archive. <em>Get the evidence.</em></h1>
+    <h1><span>Ask the archive.</span><span><em>Get the evidence.</em></span></h1>
+    <div class="lede">
+      <p>Multi-hop questions over the whole document collection. Every claim is cited, conflicting sources are shown side by side, and when the evidence isn't there the engine says so.</p>
+      <span class="kicker">Hybrid retrieval · BM25 + dense · RRF</span>
+    </div>
     <nav role="tablist" aria-label="Sections">
-      <button role="tab" aria-selected="true" data-tab="ask">01 Investigate</button>
-      <button role="tab" aria-selected="false" data-tab="docs">02 Documents</button>
-      <button role="tab" aria-selected="false" data-tab="search">03 Search</button>
+      <button role="tab" aria-selected="true" aria-controls="tab-ask" id="t-ask" data-tab="ask"><b>01</b>Investigate</button>
+      <button role="tab" aria-selected="false" aria-controls="tab-docs" id="t-docs" data-tab="docs" tabindex="-1"><b>02</b>Documents</button>
+      <button role="tab" aria-selected="false" aria-controls="tab-search" id="t-search" data-tab="search" tabindex="-1"><b>03</b>Search</button>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
   <!-- ======================= INVESTIGATE ======================= -->
-  <section id="tab-ask" role="tabpanel">
+  <section id="tab-ask" role="tabpanel" aria-labelledby="t-ask">
     <form id="ask-form">
       <label class="kicker" for="question">Question</label>
-      <textarea id="question" required minlength="3" placeholder="Which system change caused the payment processing delays in March, which services were affected, and which documents describe the recovery?"></textarea>
-      <div class="row" style="margin-top:12px;justify-content:space-between">
+      <textarea id="question" class="q-field" required minlength="3" rows="3" placeholder="Which system change caused the payment processing delays in March?"></textarea>
+      <div class="row spread tools">
         <div class="row">
           <label class="kicker" for="ask-mode">Retrieval</label>
           <select id="ask-mode"><option value="hybrid">Hybrid (BM25 + dense, RRF)</option><option value="dense">Dense only</option><option value="bm25">BM25 only</option></select>
         </div>
         <button class="btn primary" id="ask-btn" type="submit">Investigate →</button>
       </div>
-      <div class="chips" id="examples"></div>
     </form>
     <div class="status" id="ask-status" aria-live="polite"></div>
+    <div class="examples" id="examples-wrap">
+      <span class="kicker">Try a case</span>
+      <ol id="examples"></ol>
+    </div>
     <div id="ask-result"></div>
   </section>
 
   <!-- ======================= DOCUMENTS ======================= -->
-  <section id="tab-docs" role="tabpanel" hidden>
-    <div class="panel">
-      <h2>Add documents</h2>
-      <p class="muted" style="margin-top:0">Formats: .txt .md .pdf .json .jsonl .html. Re-uploading a file with the same name updates it; unchanged content is skipped.</p>
-      <form id="upload-form" class="row">
-        <input type="file" id="files" multiple accept=".txt,.md,.markdown,.pdf,.json,.jsonl,.html,.htm" required aria-label="Files to upload">
-        <label class="kicker" for="strategy">Chunking</label>
-        <select id="strategy"><option value="">Default</option><option value="recursive">Recursive</option><option value="fixed">Fixed window</option></select>
-        <button class="btn primary" type="submit">Upload</button>
-      </form>
-      <div class="row" style="margin-top:12px">
-        <label class="kicker" for="token">Admin token</label>
-        <input type="password" id="token" placeholder="Only needed if the server sets ADMIN_TOKEN" style="max-width:340px" autocomplete="off">
+  <section id="tab-docs" role="tabpanel" aria-labelledby="t-docs" hidden>
+    <div class="add">
+      <div>
+        <h3>Add evidence</h3>
+        <p class="muted">.txt .md .pdf .json .jsonl .html. Re-uploading a file with the same name updates it; unchanged content is skipped.</p>
       </div>
-      <div class="status" id="upload-status" aria-live="polite"></div>
+      <form id="upload-form">
+        <label class="drop" id="drop">
+          <input type="file" id="files" multiple accept=".txt,.md,.markdown,.pdf,.json,.jsonl,.html,.htm" required>
+          <strong id="drop-label">Choose files or drop them here</strong>
+          <span class="kicker">Up to 10 MB each</span>
+        </label>
+        <div class="fields">
+          <div class="field">
+            <label class="kicker" for="strategy">Chunking</label>
+            <select id="strategy"><option value="">Default</option><option value="recursive">Recursive</option><option value="fixed">Fixed window</option></select>
+          </div>
+          <div class="field">
+            <label class="kicker" for="token">Admin token</label>
+            <input type="password" id="token" placeholder="Only if the server sets ADMIN_TOKEN" autocomplete="off">
+          </div>
+          <button class="btn primary" type="submit">Upload →</button>
+        </div>
+        <div class="status" id="upload-status" aria-live="polite"></div>
+      </form>
     </div>
-    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+
+    <div class="row spread" style="margin-bottom:16px">
       <input type="text" id="doc-filter" placeholder="Filter by title or id" style="max-width:360px" aria-label="Filter documents">
       <span class="kicker" id="doc-count"></span>
     </div>
     <table>
-      <thead><tr><th>Title</th><th class="hide-sm">Doc id</th><th>Chunks</th><th></th></tr></thead>
+      <thead><tr><th>Title</th><th class="hide-sm">Doc id</th><th class="num">Chunks</th><th class="act"><span class="sr">Actions</span></th></tr></thead>
       <tbody id="doc-rows"></tbody>
     </table>
-    <div class="row" style="margin-top:16px">
-      <button class="btn" id="prev">← Prev</button><button class="btn" id="next">Next →</button>
+    <div class="status" id="doc-status" aria-live="polite"></div>
+    <div class="row pager">
+      <button class="btn small" id="prev">← Prev</button><button class="btn small" id="next">Next →</button>
     </div>
     <div id="doc-view"></div>
   </section>
 
   <!-- ======================= SEARCH ======================= -->
-  <section id="tab-search" role="tabpanel" hidden>
-    <form id="search-form" class="row">
-      <input type="text" id="search-q" placeholder="Raw retrieval, no LLM" required style="flex:1;min-width:220px" aria-label="Search query">
+  <section id="tab-search" role="tabpanel" aria-labelledby="t-search" hidden>
+    <form id="search-form" class="search-bar">
+      <input type="text" id="search-q" placeholder="Raw retrieval, no LLM" required aria-label="Search query">
       <select id="search-mode" aria-label="Retrieval mode"><option value="hybrid">Hybrid</option><option value="dense">Dense</option><option value="bm25">BM25</option></select>
-      <button class="btn primary" type="submit">Search</button>
+      <button class="btn primary" type="submit">Search →</button>
     </form>
     <div class="status" id="search-status" aria-live="polite"></div>
     <div id="search-results"></div>
@@ -167,8 +306,11 @@ td.id{font:12px var(--mono);color:var(--ink-dim);word-break:break-all}
 <script>
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = (n) => String(n).padStart(2, "0");
 const store = { get(k){ try { return localStorage.getItem(k) || ""; } catch { return ""; } },
                 set(k,v){ try { localStorage.setItem(k, v); } catch {} } };
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+function say(el, text, isErr = false) { el.textContent = text; el.classList.toggle("err", isErr); }
 
 async function api(path, opts = {}) {
   const headers = opts.headers || {};
@@ -180,19 +322,29 @@ async function api(path, opts = {}) {
   return body;
 }
 
-// ---------- tabs
-document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
-  document.querySelectorAll("nav button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+// ---------- tabs (click + arrow keys)
+const tabs = [...document.querySelectorAll("nav [role=tab]")];
+function selectTab(b, focus = false) {
+  tabs.forEach((x) => { const on = x === b; x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
   document.querySelectorAll("main > section").forEach((s) => s.hidden = s.id !== "tab-" + b.dataset.tab);
+  if (focus) b.focus();
   if (b.dataset.tab === "docs") loadDocs();
-}));
+}
+tabs.forEach((b, i) => {
+  b.addEventListener("click", () => selectTab(b));
+  b.addEventListener("keydown", (e) => {
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (d) { e.preventDefault(); selectTab(tabs[(i + d + tabs.length) % tabs.length], true); }
+  });
+});
 
 // ---------- stats
 async function loadStats() {
   try {
     const h = await api("/health");
-    $("#stats").textContent = `${h.documents.toLocaleString()} docs · ${h.chunks.toLocaleString()} chunks · ${h.llm ? "LLM on" : "LLM off"}`;
-  } catch { $("#stats").textContent = "Index unavailable"; }
+    $("#stats").innerHTML = `<span>${h.documents.toLocaleString()} docs · ${h.chunks.toLocaleString()} chunks</span>
+      <span><span class="dot ${h.llm ? "on" : "off"}"></span>LLM ${h.llm ? "on" : "off"}</span>`;
+  } catch { $("#stats").innerHTML = `<span><span class="dot off"></span>Index unavailable</span>`; }
 }
 loadStats();
 
@@ -203,8 +355,12 @@ const EXAMPLES = [
   "Who is older, the director of Jaws or the director of Titanic?",
   "What was the root cause of the April 2026 fraud-detection outage?",
 ];
-$("#examples").innerHTML = EXAMPLES.map((q) => `<button type="button" class="chip">${esc(q)}</button>`).join("");
-$("#examples").addEventListener("click", (e) => { if (e.target.matches(".chip")) { $("#question").value = e.target.textContent; $("#question").focus(); } });
+$("#examples").innerHTML = EXAMPLES.map((q, i) =>
+  `<li><button type="button" class="ex" data-q="${esc(q)}"><span class="n">${pad(i + 1)}</span><span>${esc(q)}</span><span class="go" aria-hidden="true">→</span></button></li>`).join("");
+$("#examples").addEventListener("click", (e) => {
+  const b = e.target.closest(".ex"); if (!b) return;
+  $("#question").value = b.dataset.q; $("#question").focus();
+});
 
 function linkCites(text) {
   return esc(text).replace(/\[S(\d+)\]/g, (_, n) => `<button class="cite" data-label="S${n}" aria-label="Show source S${n}">S${n}</button>`);
@@ -215,60 +371,68 @@ function renderAnswer(a) {
   if (a.status !== "ok") badges.push(`<span class="badge warn">${esc(a.status)}</span>`);
   if (a.insufficient) badges.push(`<span class="badge warn">Insufficient evidence</span>`);
   if (a.conflicts.length) badges.push(`<span class="badge warn">${a.conflicts.length} conflict${a.conflicts.length > 1 ? "s" : ""}</span>`);
-  badges.push(`<span class="badge">${a.citations.length} sources</span>`);
-  badges.push(`<span class="badge">${a.latency_s}s${a.cached ? " · cached" : ""}</span>`);
+  badges.push(`<span class="badge">${a.citations.length} source${a.citations.length === 1 ? "" : "s"}</span>`);
   if (a.invalid_citations.length) badges.push(`<span class="badge warn">${a.invalid_citations.length} invalid cites dropped</span>`);
 
-  const conflicts = a.conflicts.map((c) => `<div class="conflict">${linkCites(c.description)} ${c.citations.map((l) => `<button class="cite" data-label="${esc(l)}">${esc(l)}</button>`).join("")}</div>`).join("");
+  const conflicts = a.conflicts.map((c, i) => `
+    <div class="conflict"><span class="lbl">C${i + 1}</span>
+      <div>${linkCites(c.description)} ${c.citations.map((l) => `<button class="cite" data-label="${esc(l)}">${esc(l)}</button>`).join("")}</div></div>`).join("");
   const sources = a.citations.map((c) => `
     <details class="src" id="src-${esc(c.label)}">
-      <summary><span class="lbl">${esc(c.label)}</span><span><span class="ttl">${esc(c.title)}</span><br><span class="meta">${esc(c.doc_id)} · ${esc(c.source)}</span></span></summary>
+      <summary><span class="lbl">${esc(c.label)}</span><span><span class="ttl">${esc(c.title)}</span><span class="meta">${esc(c.doc_id)} · ${esc(c.source)}</span></span><span class="tog" aria-hidden="true">+</span></summary>
       <p>${esc(c.text)}</p>
     </details>`).join("");
   const trace = a.trace.map((t) => {
     const args = t.args || {};
     const what = args.query ? `“${esc(args.query)}”` : args.doc ? esc(args.doc) : args.forced ? "forced final answer" : esc(JSON.stringify(args));
     const labels = args.labels || (t.labels || []);
-    return `<li>${esc(String(t.step))} · ${esc(t.tool || "answer")} ${what}${labels.length ? ` → ${labels.join(" ")}` : ""}</li>`;
+    return `<li><span><span class="tool">${esc(t.tool || "answer")}</span> ${what}${labels.length ? ` → ${esc(labels.join(" "))}` : ""}</span></li>`;
   }).join("");
   const u = a.usage || {};
+  $("#examples-wrap").hidden = true;
   $("#ask-result").innerHTML = `
-    <div class="result">
-      <span class="kicker">Finding</span>
+    <article class="result${reduced() ? "" : " reveal"}">
+      <div class="result-head"><span class="kicker">Finding</span><span class="kicker">${a.latency_s}s${a.cached ? " · cached" : ""} · ${esc(a.mode || $("#ask-mode").value)}</span></div>
       <div class="q-echo">${esc(a.question)}</div>
       <div class="badges">${badges.join("")}</div>
-      <div class="answer">${linkCites(a.answer)}</div>
-      ${a.short_answer ? `<div class="short">Short answer: ${esc(a.short_answer)}</div>` : ""}
+      <p class="answer">${linkCites(a.answer)}</p>
+      ${a.short_answer ? `<div class="short"><span class="kicker">Short answer</span><strong>${esc(a.short_answer)}</strong></div>` : ""}
       <div class="grid">
         <div>
-          ${conflicts ? `<h2>Conflicting evidence</h2>${conflicts}` : ""}
-          <h2>Sources cited</h2>${sources || '<p class="muted">No sources cited.</p>'}
+          ${conflicts ? `<div class="block"><h2><span>Conflicting evidence</span><span>${a.conflicts.length}</span></h2>${conflicts}</div>` : ""}
+          <div class="block"><h2><span>Sources cited</span><span>${a.citations.length}</span></h2>${sources || '<p class="muted">No sources cited.</p>'}</div>
         </div>
-        <div>
-          <h2>Investigation trace</h2><ol class="trace">${trace}</ol>
-          <p class="muted">${u.llm_calls ?? 0} LLM calls · ${(u.prompt_tokens ?? 0).toLocaleString()} in / ${(u.completion_tokens ?? 0).toLocaleString()} out tokens${u.model ? " · " + esc(u.model) : ""}</p>
+        <div class="block">
+          <h2><span>Investigation trace</span><span>${a.trace.length} step${a.trace.length === 1 ? "" : "s"}</span></h2>
+          ${trace ? `<ol class="trace">${trace}</ol>` : '<p class="muted">No tool calls.</p>'}
+          <p class="usage">${u.llm_calls ?? 0} LLM calls · ${(u.prompt_tokens ?? 0).toLocaleString()} in / ${(u.completion_tokens ?? 0).toLocaleString()} out tokens${u.model ? " · " + esc(u.model) : ""}</p>
         </div>
       </div>
-    </div>`;
+      <div class="row" style="margin-top:40px"><button class="btn small" type="button" id="new-q">← New question</button></div>
+    </article>`;
 }
 
 $("#ask-result").addEventListener("click", (e) => {
+  if (e.target.closest("#new-q")) {
+    $("#ask-result").innerHTML = ""; $("#examples-wrap").hidden = false;
+    $("#question").value = ""; $("#question").focus(); return;
+  }
   const b = e.target.closest(".cite"); if (!b) return;
   const el = document.getElementById("src-" + b.dataset.label); if (!el) return;
-  el.open = true; el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  el.open = true; el.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "center" });
   el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200);
 });
 
 $("#ask-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const btn = $("#ask-btn"); btn.disabled = true;
-  $("#ask-status").textContent = "Investigating: searching, following leads, checking sources…";
+  const btn = $("#ask-btn"); btn.disabled = true; btn.setAttribute("aria-busy", "true");
+  say($("#ask-status"), "Investigating: searching, following leads, checking sources…");
   try {
     const a = await api("/ask", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: $("#question").value, mode: $("#ask-mode").value }) });
-    $("#ask-status").textContent = ""; renderAnswer(a);
-  } catch (err) { $("#ask-status").textContent = "Error: " + err.message; }
-  finally { btn.disabled = false; }
+    say($("#ask-status"), ""); renderAnswer(a);
+  } catch (err) { say($("#ask-status"), "Error: " + err.message, true); }
+  finally { btn.disabled = false; btn.removeAttribute("aria-busy"); }
 });
 
 // ---------- documents
@@ -280,61 +444,81 @@ async function loadDocs() {
   try {
     const q = encodeURIComponent($("#doc-filter").value.trim());
     const r = await api(`/documents?q=${q}&offset=${docOffset}&limit=${PAGE}`);
-    $("#doc-count").textContent = `${r.total.toLocaleString()} documents · ${docOffset + 1}–${Math.min(docOffset + PAGE, r.total)}`;
+    $("#doc-count").textContent = r.total ? `${r.total.toLocaleString()} documents · ${docOffset + 1}–${Math.min(docOffset + PAGE, r.total)}` : "No documents";
     $("#doc-rows").innerHTML = r.items.map((d) => `
-      <tr><td><button class="chip" data-view="${esc(d.doc_id)}">${esc(d.title)}</button></td>
-      <td class="id hide-sm">${esc(d.doc_id)}</td><td>${d.n_chunks}</td>
-      <td><button class="btn" data-del="${esc(d.doc_id)}" aria-label="Delete ${esc(d.title)}">Delete</button></td></tr>`).join("");
+      <tr><td><button class="link" data-view="${esc(d.doc_id)}">${esc(d.title)}</button></td>
+      <td class="id hide-sm">${esc(d.doc_id)}</td><td class="num">${d.n_chunks}</td>
+      <td class="act"><button class="btn small" data-del="${esc(d.doc_id)}" aria-label="Delete ${esc(d.title)}">Delete</button></td></tr>`).join("");
     $("#prev").disabled = docOffset === 0; $("#next").disabled = docOffset + PAGE >= r.total;
-  } catch (err) { $("#doc-count").textContent = "Error: " + err.message; }
+  } catch (err) { say($("#doc-status"), "Error: " + err.message, true); }
 }
 $("#doc-filter").addEventListener("input", () => { clearTimeout(filterTimer); filterTimer = setTimeout(() => { docOffset = 0; loadDocs(); }, 250); });
 $("#prev").addEventListener("click", () => { docOffset = Math.max(0, docOffset - PAGE); loadDocs(); });
 $("#next").addEventListener("click", () => { docOffset += PAGE; loadDocs(); });
 
+// Delete is two-step inline (no browser dialogs): first click arms, second click within 4s deletes.
 $("#doc-rows").addEventListener("click", async (e) => {
   const del = e.target.closest("[data-del]"); const view = e.target.closest("[data-view]");
   if (del) {
-    if (!confirm(`Delete "${del.dataset.del}"? This removes it from the index.`)) return;
-    try { await api("/documents/" + encodeURIComponent(del.dataset.del), { method: "DELETE" }); loadDocs(); loadStats(); }
-    catch (err) { alert(err.message); }
+    if (!del.dataset.armed) {
+      del.dataset.armed = "1"; del.textContent = "Confirm delete"; del.classList.add("danger");
+      setTimeout(() => { if (del.isConnected) { delete del.dataset.armed; del.textContent = "Delete"; del.classList.remove("danger"); } }, 4000);
+      return;
+    }
+    try {
+      await api("/documents/" + encodeURIComponent(del.dataset.del), { method: "DELETE" });
+      say($("#doc-status"), `Deleted ${del.dataset.del}`); loadDocs(); loadStats();
+    } catch (err) { say($("#doc-status"), "Error: " + err.message, true); }
   } else if (view) {
-    const d = await api("/documents/" + encodeURIComponent(view.dataset.view));
-    $("#doc-view").innerHTML = `<div class="result"><span class="kicker">${esc(d.doc_id)} · ${esc(d.fmt)} · ${d.n_chunks} chunks</span>
-      <div class="q-echo">${esc(d.title)}</div>
-      ${d.chunks.map((c) => `<div class="src"><span class="lbl">#${c.position}</span><p style="margin-left:0">${esc(c.text)}</p></div>`).join("")}</div>`;
-    $("#doc-view").scrollIntoView({ block: "start" });
+    try {
+      const d = await api("/documents/" + encodeURIComponent(view.dataset.view));
+      $("#doc-view").innerHTML = `<article class="result${reduced() ? "" : " reveal"}">
+        <div class="result-head"><span class="kicker">${esc(d.doc_id)}</span><span class="kicker">${esc(d.fmt)} · ${d.n_chunks} chunk${d.n_chunks === 1 ? "" : "s"}</span></div>
+        <div class="q-echo">${esc(d.title)}</div>
+        <div class="hits">${d.chunks.map((c) => `<div class="hit"><span class="n">#${pad(c.position)}</span><p style="margin:0">${esc(c.text)}</p></div>`).join("")}</div></article>`;
+      $("#doc-view").scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
+    } catch (err) { say($("#doc-status"), "Error: " + err.message, true); }
   }
 });
+
+const drop = $("#drop");
+function showPicked() {
+  const n = $("#files").files.length;
+  $("#drop-label").textContent = n ? `${n} file${n > 1 ? "s" : ""} selected: ${[...$("#files").files].map((f) => f.name).join(", ")}` : "Choose files or drop them here";
+}
+$("#files").addEventListener("change", showPicked);
+["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => drop.addEventListener(t, () => drop.classList.remove("over")));
+drop.addEventListener("drop", (e) => { e.preventDefault(); $("#files").files = e.dataTransfer.files; showPicked(); });
 
 $("#upload-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd = new FormData();
   for (const f of $("#files").files) fd.append("files", f);
   if ($("#strategy").value) fd.append("chunk_strategy", $("#strategy").value);
-  $("#upload-status").textContent = "Parsing, chunking and embedding…";
+  say($("#upload-status"), "Parsing, chunking and embedding…");
   try {
     const r = await api("/documents", { method: "POST", body: fd });
     const c = r.counts;
-    $("#upload-status").textContent = `Added ${c.added}, updated ${c.updated}, unchanged ${c.unchanged} · ${r.chunks_added} chunks · ${r.duplicate_chunks_skipped} duplicate chunks skipped · ${r.seconds}s`;
-    $("#files").value = ""; loadDocs(); loadStats();
-  } catch (err) { $("#upload-status").textContent = "Error: " + err.message; }
+    say($("#upload-status"), `Added ${c.added} · updated ${c.updated} · unchanged ${c.unchanged} · ${r.chunks_added} chunks · ${r.duplicate_chunks_skipped} duplicate chunks skipped · ${r.seconds}s`);
+    $("#files").value = ""; showPicked(); loadDocs(); loadStats();
+  } catch (err) { say($("#upload-status"), "Error: " + err.message, true); }
 });
 
 // ---------- search
 $("#search-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  $("#search-status").textContent = "Searching…";
+  say($("#search-status"), "Searching…");
   try {
     const r = await api("/search", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: $("#search-q").value, mode: $("#search-mode").value, top_k: 10 }) });
-    $("#search-status").textContent = `${r.hits.length} hits · ${r.latency_s}s`;
-    $("#search-results").innerHTML = r.hits.map((h, i) => `
-      <div class="hit"><span class="kicker">${String(i + 1).padStart(2, "0")} · ${esc(h.doc_id)}</span>
-      <div class="ttl" style="font-weight:600;margin-top:4px">${esc(h.title)}</div>
-      <div class="ranks">rrf ${h.score.toFixed(4)} · ${Object.entries(h.ranks).map(([k, v]) => `${k} #${v}`).join(" · ")}</div>
-      <p style="margin:8px 0 0;color:var(--ink-mid)">${esc(h.text.slice(0, 500))}${h.text.length > 500 ? "…" : ""}</p></div>`).join("");
-  } catch (err) { $("#search-status").textContent = "Error: " + err.message; }
+    say($("#search-status"), `${r.hits.length} hits · ${r.latency_s}s · ${r.mode}`);
+    $("#search-results").innerHTML = `<div class="hits">${r.hits.map((h, i) => `
+      <div class="hit"><span class="n">${pad(i + 1)}</span><div>
+        <div class="ttl">${esc(h.title)}</div>
+        <div class="ranks"><span class="rank score">${r.mode === "hybrid" ? "rrf" : "score"} ${h.score.toFixed(4)}</span>${Object.entries(h.ranks).map(([k, v]) => `<span class="rank">${esc(k)} #${v}</span>`).join("")}<span class="rank score">${esc(h.doc_id)}</span></div>
+        <p>${esc(h.text.slice(0, 500))}${h.text.length > 500 ? "…" : ""}</p></div></div>`).join("")}</div>`;
+  } catch (err) { say($("#search-status"), "Error: " + err.message, true); }
 });
 </script>
 </body>
