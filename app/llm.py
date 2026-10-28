@@ -34,7 +34,7 @@ class Usage:
 @dataclass
 class ChatResult:
     content: str | None
-    tool_calls: list[dict[str, Any]] = field(default_factory=list)  # [{id, name, arguments(str)}]
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)  # [{id, name, arguments(str), extra_content}]
     usage: Usage = field(default_factory=Usage)
 
 
@@ -73,7 +73,10 @@ class OpenAICompatLLM:
                 u = resp.usage
                 usage = Usage(1, getattr(u, "prompt_tokens", 0) or 0, getattr(u, "completion_tokens", 0) or 0,
                               time.time() - t)
-                calls = [{"id": tc.id, "name": tc.function.name, "arguments": tc.function.arguments or "{}"}
+                # Keep provider extras (Gemini 3 puts a required thought_signature in extra_content);
+                # they must be echoed back with the tool call or the next request is rejected.
+                calls = [{"id": tc.id, "name": tc.function.name, "arguments": tc.function.arguments or "{}",
+                          "extra_content": (tc.model_extra or {}).get("extra_content")}
                          for tc in (msg.tool_calls or [])]
                 return ChatResult(content=msg.content, tool_calls=calls, usage=usage)
             except retryable as exc:

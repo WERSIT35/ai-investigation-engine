@@ -45,6 +45,18 @@ def test_multi_hop_with_tool_call_and_citation_validation(loaded_engine):
     assert a.usage["llm_calls"] == 2
 
 
+def test_tool_call_extras_are_echoed_back(loaded_engine):
+    # Gemini 3 rejects the follow-up request (400) unless each tool call's thought_signature is sent back.
+    sig = {"google": {"thought_signature": "abc"}}
+    call = ChatResult(content=None, usage=Usage(1, 100, 10, 0.1), tool_calls=[
+        {"id": "c1", "name": "search_documents", "arguments": json.dumps({"query": "INC-1042"}), "extra_content": sig}])
+    llm = ScriptedLLM([call, final(answer="Done [S1].", short_answer="", citations=["S1"], conflicts=[],
+                                   insufficient=False)])
+    InvestigationAgent(loaded_engine, llm).ask("What happened in INC-1042?")
+    echoed = [m for m in llm.seen[1] if m["role"] == "assistant"][0]["tool_calls"][0]
+    assert echoed["extra_content"] == sig
+    assert echoed["function"]["name"] == "search_documents"
+
 def test_conflicts_are_kept_with_valid_labels(loaded_engine):
     llm = ScriptedLLM([final(answer="Resolved at 14:20 [S1] or 11:05 [S2].", short_answer="",
                              citations=["S1", "S2"], insufficient=False,

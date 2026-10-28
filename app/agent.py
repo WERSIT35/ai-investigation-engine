@@ -146,6 +146,14 @@ class Evidence:
         return "\n\n".join(blocks)
 
 
+def _echo_call(c: dict[str, Any]) -> dict[str, Any]:
+    """Assistant tool call as sent back to the model, including provider extras (Gemini thought signatures)."""
+    out = {"id": c["id"], "type": "function", "function": {"name": c["name"], "arguments": c["arguments"]}}
+    if c.get("extra_content"):
+        out["extra_content"] = c["extra_content"]
+    return out
+
+
 def _parse_final(text: str) -> dict[str, Any] | None:
     if not text:
         return None
@@ -264,8 +272,7 @@ class InvestigationAgent:
                 continue
             messages.append({
                 "role": "assistant", "content": res.content or "",
-                "tool_calls": [{"id": c["id"], "type": "function",
-                                "function": {"name": c["name"], "arguments": c["arguments"]}} for c in res.tool_calls],
+                "tool_calls": [_echo_call(c) for c in res.tool_calls],
             })
             for call in res.tool_calls:
                 output, info = self._run_tool(call["name"], call["arguments"], ev, mode)
