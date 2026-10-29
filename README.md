@@ -19,7 +19,30 @@ inline citations, flags conflicting evidence, and refuses to answer when the evi
   incident-management documents in 5 formats (change log, postmortem, status page, runbook, architecture, SLA PDF,
   team directory) with deliberate contradictions.
 - **Stack:** Python 3.11 · FastAPI · Qdrant Cloud (free) · fastembed `bge-small-en-v1.5` (ONNX, CPU) ·
-  own BM25 + RRF · OpenAI-compatible LLM (Gemini 3.1 Flash-Lite free tier, or Groq) · vanilla JS UI · Docker on Hugging Face Spaces.
+  own BM25 + RRF · OpenAI-compatible LLM (Gemini 3.1 Flash-Lite free tier, or Groq) · vanilla JS UI · Docker image,
+  demo served through a Cloudflare tunnel.
+
+## Requirements coverage
+
+| Brief requirement | Where |
+|---|---|
+| ≥3 file formats, text + metadata extraction | `app/loaders.py`: txt, md (front matter), pdf (doc info), json/jsonl, html (meta) |
+| Chunking, 2 strategies compared | `app/chunking.py` (`fixed_chunks`, `recursive_chunks`) · `eval/chunking_experiment.py` · [EVALUATION.md §2.3](EVALUATION.md) |
+| Duplicate handling | `app/engine.py`: normalised chunk hash + document hash (re-upload = no-op, changed file = update) |
+| Add / update / delete documents | `POST /documents`, `PUT /documents/{id}`, `DELETE /documents/{id}` + UI |
+| Vector DB, embeddings, semantic search | Qdrant Cloud (`app/store.py`) · `bge-small-en-v1.5` (`app/embeddings.py`) |
+| Hybrid search | `app/engine.py` `search()`: BM25 + dense fused with RRF |
+| Own ranking component | `app/bm25.py` (BM25 from scratch) · `app/fusion.py` (`reciprocal_rank_fusion`, `diversify_by_doc`) |
+| RAG, multi-document, multi-step | `app/agent.py`: tool-calling loop (`search_documents`, `read_document`), evidence labels `[S#]` |
+| Citations | validated per answer; labels not in the evidence are dropped and reported as `invalid_citations` |
+| Conflicts / abstention | structured `conflicts` list · `insufficient=true` when evidence is missing |
+| LLM errors and limits | `app/llm.py`: retries with `Retry-After`, timeouts, rejected tool calls → answer from evidence, `degraded` mode |
+| Tool calling | OpenAI-style function calling, arguments coerced and validated |
+| Eval: ≥40 questions, all types, metrics, 2+ configs | 47 questions · Recall@K, All-gold@10, MRR, correctness, EM/F1, citation P/R · hybrid vs dense vs BM25 · [EVALUATION.md](EVALUATION.md) |
+| ≥50k documents | 66,563 documents / 78,009 chunks in Qdrant Cloud |
+| Public URL, persistence, secrets, deploy notes, limits | [Deploy](#deploy-free-tier) · data lives in Qdrant Cloud, survives restarts · secrets only in `.env` |
+| Tests | `pytest -q`: 36 tests, no network |
+| Bonus | agentic RAG · answer + query-embedding caching · prompt-injection guard (passages marked as untrusted data) · per-question latency/token tracking in the UI |
 
 ## Architecture
 
