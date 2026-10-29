@@ -40,15 +40,26 @@ Gold labels: HotpotQA supporting-fact titles map 1:1 to documents (`hp::<title>`
 
 ## 2. Results
 
-Index: TODO documents / TODO chunks · `BAAI/bge-small-en-v1.5` · LLM: TODO
+Index: 66,563 documents / 78,009 chunks (Qdrant Cloud) · `BAAI/bge-small-en-v1.5` · LLM: `gemini-3.1-flash-lite` · run 2026-10-29
 
 ### 2.1 Retrieval
 
 | Config | Recall@5 | Recall@10 | All-gold@10 | MRR@10 | Latency |
 |---|---|---|---|---|---|
-| hybrid | TODO | TODO | TODO | TODO | TODO |
-| dense | TODO | TODO | TODO | TODO | TODO |
-| bm25 | TODO | TODO | TODO | TODO | TODO |
+| **hybrid** | **0.889** | **0.944** | **0.881** | **0.948** | 278 ms |
+| dense | 0.861 | 0.893 | 0.833 | 0.940 | 262 ms |
+| bm25 | 0.794 | 0.889 | 0.786 | 0.873 | 6 ms |
+
+42 answerable questions. Latency is the full search call (embedding the query on CPU dominates; BM25 alone is in-memory).
+
+Recall@10 / All-gold@10 by question type:
+
+| Type | n | hybrid | dense | bm25 |
+|---|---|---|---|---|
+| simple | 5 | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 |
+| multi_hop | 19 | **0.904 / 0.789** | 0.816 / 0.737 | 0.833 / 0.684 |
+| comparison | 15 | **0.967 / 0.933** | 0.933 / 0.867 | 0.900 / 0.800 |
+| conflict | 3 | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 |
 
 ### 2.2 End-to-end
 
@@ -66,7 +77,19 @@ Index: TODO documents / TODO chunks · `BAAI/bge-small-en-v1.5` · LLM: TODO
 
 ### 2.3 Chunking
 
-Paste the table from `eval/results/chunking.md`.
+Corpus: the 11 multi-paragraph synthetic documents (HotpotQA paragraphs are single short chunks, so chunking does not
+change them) · 12 answerable questions · hybrid retrieval, top-3 chunks.
+
+| Strategy | Size / overlap (chars) | Chunks | Mean chunk len | Answer-hit@3 | Doc recall@3 |
+|---|---|---|---|---|---|
+| fixed | 300 / 50 | 29 | 250 | **1.000** | 0.861 |
+| recursive | 300 / 50 | 31 | 205 | 0.833 | 0.861 |
+| fixed | 800 / 120 | 13 | 504 | 0.917 | 0.861 |
+| recursive | 800 / 120 | 13 | 484 | 0.917 | 0.861 |
+
+Doc recall is identical across all four, so chunking only changes whether the *exact answer* lands in the top-3
+passages. Fixed/300 wins here, but 12 questions is a small sample (one question = 0.083). The default stays
+recursive/800: it keeps paragraphs and table rows whole for the LLM, and on this set it ties fixed/800.
 
 ## 3. Analysis
 
