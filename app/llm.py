@@ -17,6 +17,10 @@ class LLMError(RuntimeError):
     """Raised when the LLM cannot produce a response after retries (or is not configured)."""
 
 
+class LLMToolCallError(LLMError):
+    """The provider rejected the model's tool call (e.g. Groq 400 tool_use_failed for an unknown tool name)."""
+
+
 @dataclass
 class Usage:
     calls: int = 0
@@ -94,6 +98,8 @@ class OpenAICompatLLM:
                 time.sleep(delay)
             except openai.BadRequestError as exc:
                 # e.g. model produced a malformed tool call; not worth retrying identically
+                if getattr(exc, "code", None) == "tool_use_failed" or "tool call validation failed" in str(exc):
+                    raise LLMToolCallError(f"LLM tool call rejected: {exc}") from exc
                 raise LLMError(f"LLM rejected request: {exc}") from exc
             except openai.APIError as exc:
                 raise LLMError(f"LLM API error: {exc}") from exc

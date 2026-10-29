@@ -19,7 +19,7 @@ from dataclasses import asdict, dataclass, field, replace
 from typing import Any
 
 from .engine import Engine, Mode
-from .llm import ChatModel, LLMError, Usage
+from .llm import ChatModel, LLMError, LLMToolCallError, Usage
 from .models import SearchHit
 
 log = logging.getLogger(__name__)
@@ -278,7 +278,13 @@ class InvestigationAgent:
         final: dict[str, Any] | None = None
         last_text = ""
         for step in range(1, self.max_steps + 1):
-            res = self.llm.chat(messages, tools=TOOLS)
+            try:
+                res = self.llm.chat(messages, tools=TOOLS)
+            except LLMToolCallError as exc:
+                # provider refused a malformed/unknown tool call: stop using tools, answer from the evidence so far
+                log.warning("tool call rejected, forcing a final answer: %s", exc)
+                trace.append({"step": step, "tool": None, "args": {"error": "tool call rejected by provider"}})
+                break
             usage.add(res.usage)
             if not res.tool_calls:
                 last_text = res.content or ""

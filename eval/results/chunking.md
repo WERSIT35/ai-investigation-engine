@@ -1,6 +1,6 @@
 # Chunking strategy comparison
 
-Corpus: 11 synthetic documents · 12 answerable questions · embedder `BAAI/bge-small-en-v1.5` · hybrid retrieval, top-3 chunks, no per-doc cap
+Corpus: 11 synthetic documents Â· 12 answerable questions Â· embedder `BAAI/bge-small-en-v1.5` Â· hybrid retrieval, top-3 chunks, no per-doc cap
 
 | Strategy | Size / overlap (chars) | Chunks | Mean chunk len | Answer-hit@3 | Doc recall@3 |
 |---|---|---|---|---|---|

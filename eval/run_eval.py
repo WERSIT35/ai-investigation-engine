@@ -187,6 +187,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int)
     ap.add_argument("--sleep", type=float, default=0.0, help="pause between questions (free-tier RPM limits)")
     args = ap.parse_args()
+    # Model answers contain non-ASCII (→, Georgian names); Windows consoles/redirects default to cp1252.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     s = get_settings()
     engine = Engine(s, make_embedder(s.embed_backend, s.embed_model, s.embed_batch))

@@ -1,7 +1,7 @@
 import json
 
 from app.agent import InvestigationAgent, _parse_final
-from app.llm import ChatResult, LLMError, Usage
+from app.llm import ChatResult, LLMError, LLMToolCallError, Usage
 
 
 class ScriptedLLM:
@@ -109,6 +109,16 @@ def test_llm_failure_degrades_gracefully(loaded_engine):
     assert a.status == "degraded" and a.insufficient and a.citations
     a = InvestigationAgent(loaded_engine, None).ask("anything about ledger")
     assert a.status == "degraded"
+
+
+def test_rejected_tool_call_forces_answer_from_evidence(loaded_engine):
+    # Groq returns 400 when the model calls a tool that does not exist (seen: 'search_DOCUMENTS').
+    llm = ScriptedLLM([LLMToolCallError("attempted to call tool 'search_DOCUMENTS'"),
+                       final(answer="v4.2 [S1]", short_answer="v4.2", citations=["S1"], conflicts=[],
+                             insufficient=False)])
+    a = InvestigationAgent(loaded_engine, llm).ask("Which version was deployed in CHG-3301?")
+    assert a.status == "ok" and a.short_answer == "v4.2"
+    assert a.trace[-1]["args"] == {"forced": True}
 
 
 def test_prose_answer_is_reformatted_then_forced(loaded_engine):
