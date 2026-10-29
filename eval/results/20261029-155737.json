@@ -1,0 +1,2192 @@
+{
+  "timestamp": "2026-10-29T15:57:15",
+  "n_questions": 47,
+  "index": {
+    "documents": 66563,
+    "chunks": 78009,
+    "bm25_terms": 172546,
+    "embedder": "BAAI/bge-small-en-v1.5",
+    "dim": 384,
+    "collection": "docs"
+  },
+  "settings": {
+    "qdrant_url": "https://0c24d8c5-06d6-4f74-895a-50dccdaefae6.sa-east-1-0.aws.cloud.qdrant.io",
+    "qdrant_path": "./qdrant_data",
+    "collection": "docs",
+    "embed_backend": "fastembed",
+    "embed_model": "BAAI/bge-small-en-v1.5",
+    "embed_batch": 64,
+    "llm_base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "llm_model": "gemini-3.1-flash-lite",
+    "llm_timeout": 60.0,
+    "llm_max_retries": 3,
+    "chunk_strategy": "recursive",
+    "chunk_size": 800,
+    "chunk_overlap": 120,
+    "top_k": 8,
+    "candidate_pool": 50,
+    "rrf_k": 60,
+    "max_chunks_per_doc": 2,
+    "max_agent_steps": 4,
+    "ask_rate_per_min": 10,
+    "trust_proxy": false,
+    "max_upload_mb": 10
+  },
+  "retrieval": {
+    "hybrid": {
+      "summary": {
+        "n": 42,
+        "recall@5": 0.888888888888889,
+        "recall@10": 0.9444444444444444,
+        "all_gold@10": 0.8809523809523809,
+        "mrr@10": 0.9484126984126985,
+        "latency_ms": 269.40285591852097
+      },
+      "by_type": {
+        "comparison": {
+          "n": 15,
+          "recall@5": 0.9,
+          "recall@10": 0.9666666666666667,
+          "all_gold@10": 0.9333333333333333,
+          "mrr@10": 0.9333333333333333,
+          "latency_ms": 270.12008031209314
+        },
+        "conflict": {
+          "n": 3,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 1.0,
+          "latency_ms": 261.4685694376628
+        },
+        "multi_hop": {
+          "n": 19,
+          "recall@5": 0.8333333333333334,
+          "recall@10": 0.9035087719298246,
+          "all_gold@10": 0.7894736842105263,
+          "mrr@10": 0.9385964912280701,
+          "latency_ms": 271.63703818070263
+        },
+        "simple": {
+          "n": 5,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 1.0,
+          "latency_ms": 263.5218620300293
+        }
+      },
+      "rows": [
+        {
+          "id": "syn-01",
+          "type": "simple",
+          "latency": 0.2667384147644043,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::runbook-ledger-service",
+            "syn::team-ledger",
+            "syn::weekly-ops-report-2026-w11"
+          ]
+        },
+        {
+          "id": "syn-02",
+          "type": "simple",
+          "latency": 0.2643451690673828,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::team-ledger",
+            "syn::team-notifications",
+            "syn::postmortem-inc-1042",
+            "hp::Robert Kraft",
+            "syn::runbook-ledger-service"
+          ]
+        },
+        {
+          "id": "syn-03",
+          "type": "simple",
+          "latency": 0.26029038429260254,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "file::vendor-sla-paybridge.pdf",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::architecture-overview",
+            "syn::postmortem-inc-1042",
+            "hp::Cheque guarantee card"
+          ]
+        },
+        {
+          "id": "syn-04",
+          "type": "simple",
+          "latency": 0.26085948944091797,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::architecture-overview",
+            "syn::team-notifications",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-05",
+          "type": "simple",
+          "latency": 0.26537585258483887,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::runbook-ledger-service",
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::team-ledger",
+            "syn::architecture-overview"
+          ]
+        },
+        {
+          "id": "syn-06",
+          "type": "multi_hop",
+          "latency": 0.2676370143890381,
+          "r5": 0.3333333333333333,
+          "r10": 0.6666666666666666,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::postmortem-inc-1042",
+            "syn::incident-inc-1057",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::status-page-inc-1042",
+            "hp::Electronic Payment Services"
+          ]
+        },
+        {
+          "id": "syn-07",
+          "type": "multi_hop",
+          "latency": 0.2691357135772705,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.3333333333333333,
+          "top_docs": [
+            "syn::team-sre",
+            "syn::team-notifications",
+            "syn::team-ledger",
+            "hp::Sinclair Broadcast Group",
+            "syn::status-page-inc-1042"
+          ]
+        },
+        {
+          "id": "syn-08",
+          "type": "multi_hop",
+          "latency": 0.2795712947845459,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::team-notifications",
+            "syn::incident-inc-1057",
+            "syn::changelog-2026-03",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042"
+          ]
+        },
+        {
+          "id": "syn-09",
+          "type": "multi_hop",
+          "latency": 0.26489877700805664,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "file::vendor-sla-paybridge.pdf",
+            "syn::status-page-inc-1042",
+            "syn::postmortem-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-15",
+          "type": "conflict",
+          "latency": 0.2605295181274414,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-16",
+          "type": "conflict",
+          "latency": 0.2624950408935547,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-17",
+          "type": "conflict",
+          "latency": 0.2613811492919922,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::incident-inc-1057",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::status-page-inc-1042",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "hp-5ac3d1d9554299204fd21e8a",
+          "type": "multi_hop",
+          "latency": 0.27621889114379883,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Remain in Light",
+            "hp::The Name of This Band Is Talking Heads",
+            "hp::The Best of Talking Heads",
+            "hp::Born Under Punches (The Heat Goes On)",
+            "hp::Talking Heads: 77"
+          ]
+        },
+        {
+          "id": "hp-5ac373195542995ef918c199",
+          "type": "multi_hop",
+          "latency": 0.2625105381011963,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Bay Plaza Shopping Center",
+            "hp::Port Plaza Mall",
+            "hp::Kings Plaza",
+            "hp::Del Monte Center",
+            "hp::Britton Plaza Shopping Center"
+          ]
+        },
+        {
+          "id": "hp-5ab7f97a5542991d322237ef",
+          "type": "multi_hop",
+          "latency": 0.2602202892303467,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Opry Mills",
+            "hp::Keith Bilbrey",
+            "hp::Music City Queen",
+            "hp::Grand Ole Opry",
+            "hp::Ryman Auditorium"
+          ]
+        },
+        {
+          "id": "hp-5a74547755429979e2882900",
+          "type": "multi_hop",
+          "latency": 0.2723655700683594,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Kevin Sumlin",
+            "hp::2008 Houston Cougars football team",
+            "hp::Larry Porter (Coach)",
+            "hp::June Jones",
+            "hp::Jerry Glanville"
+          ]
+        },
+        {
+          "id": "hp-5a77626b5542993569682d77",
+          "type": "multi_hop",
+          "latency": 0.2929117679595947,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::Jena Malone",
+            "hp::Marika Green",
+            "hp::Nicollette Sheridan",
+            "hp::Emmanuelle (film)",
+            "hp::Salma Hayek"
+          ]
+        },
+        {
+          "id": "hp-5ab529965542990594ba9d1e",
+          "type": "multi_hop",
+          "latency": 0.26912713050842285,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Trump Plaza Hotel and Casino",
+            "hp::Trump World's Fair",
+            "hp::The Atlantic Club Casino Hotel",
+            "hp::Trump Entertainment Resorts",
+            "hp::Golden Nugget Atlantic City"
+          ]
+        },
+        {
+          "id": "hp-5a77b5c255429967ab10523c",
+          "type": "multi_hop",
+          "latency": 0.26819705963134766,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::1928 Philadelphia Athletics season",
+            "hp::Eddie Collins",
+            "hp::1952 Philadelphia Athletics season",
+            "hp::1929 Philadelphia Athletics season",
+            "hp::1931 Philadelphia Athletics season"
+          ]
+        },
+        {
+          "id": "hp-5ac275f155429921a00aaf82",
+          "type": "multi_hop",
+          "latency": 0.2754523754119873,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Hanoi",
+            "hp::First Indochina War",
+            "hp::List of war museums and monuments in Vietnam",
+            "hp::Vi\u1ec7t B\u1eafc",
+            "hp::Vietnam War Memorial, Hanoi"
+          ]
+        },
+        {
+          "id": "hp-5abd573c55429924427fcfb7",
+          "type": "multi_hop",
+          "latency": 0.2816803455352783,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Zach Parise",
+            "hp::Jordan Parise",
+            "hp::Mario Kempes",
+            "hp::Zach Thornton",
+            "hp::Charlotte Hornets"
+          ]
+        },
+        {
+          "id": "hp-5a84e0a45542991dd0999e11",
+          "type": "multi_hop",
+          "latency": 0.2624998092651367,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Steel Venom (Valleyfair)",
+            "hp::Wicked Twister",
+            "hp::Venom (band)",
+            "hp::Twister...Ride it Out",
+            "hp::Possessed (roller coaster)"
+          ]
+        },
+        {
+          "id": "hp-5a84b4005542991dd0999d99",
+          "type": "multi_hop",
+          "latency": 0.26565122604370117,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::G Hannelius",
+            "hp::Dog with a Blog",
+            "hp::List of Dog with a Blog episodes",
+            "hp::Girl Meets World",
+            "hp::Pair of Kings"
+          ]
+        },
+        {
+          "id": "hp-5a87aa135542996e4f3088b8",
+          "type": "multi_hop",
+          "latency": 0.26531004905700684,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Jolyon James",
+            "hp::Adam Guettel",
+            "hp::David Ezra Okon\u015far",
+            "hp::The King and I",
+            "hp::Robert Longden (actor)"
+          ]
+        },
+        {
+          "id": "hp-5a7c703055429935c91b51aa",
+          "type": "multi_hop",
+          "latency": 0.26657772064208984,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Francis Leighton",
+            "hp::All Souls College, Oxford",
+            "hp::Magdalen College, Oxford",
+            "hp::Oriel College, Oxford",
+            "hp::St Peter's College, Oxford"
+          ]
+        },
+        {
+          "id": "hp-5a886886554299206df2b258",
+          "type": "multi_hop",
+          "latency": 0.27364087104797363,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Liu Ailing",
+            "hp::FIFA Women's World Cup",
+            "hp::EAFF E-1 Football Championship",
+            "hp::EAFF E-1 Football Championship (women)",
+            "hp::Anne No\u00eb"
+          ]
+        },
+        {
+          "id": "hp-5a8cb288554299585d9e3726",
+          "type": "multi_hop",
+          "latency": 0.28749728202819824,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Oikos University shooting",
+            "hp::Oakland, California",
+            "hp::April 2007 Mosul massacre",
+            "hp::Umpqua Community College shooting",
+            "hp::Ra\u010dak massacre"
+          ]
+        },
+        {
+          "id": "hp-5a8c30f6554299240d9c20d1",
+          "type": "comparison",
+          "latency": 0.27199435234069824,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::Rolling Papers (Wiz Khalifa album)",
+            "hp::Rolling Papers (film)",
+            "hp::The Race (Wiz Khalifa song)",
+            "hp::Joint (cannabis)",
+            "hp::Louder Than Bombs"
+          ]
+        },
+        {
+          "id": "hp-5ae1e9635542997f29b3c19e",
+          "type": "comparison",
+          "latency": 0.2749912738800049,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::San Angelo Regional Airport",
+            "hp::Grand Junction Regional Airport",
+            "hp::Ute meridian",
+            "hp::San Antonio International Airport",
+            "hp::San Angelo, Texas"
+          ]
+        },
+        {
+          "id": "hp-5a75d45f5542994ccc918630",
+          "type": "comparison",
+          "latency": 0.26296496391296387,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Griffon Bruxellois",
+            "hp::Griffon (disambiguation)",
+            "hp::Griffon",
+            "hp::Stabyhoun",
+            "hp::Griffon Bleu de Gascogne"
+          ]
+        },
+        {
+          "id": "hp-5a7631c05542994ccc91870b",
+          "type": "comparison",
+          "latency": 0.2685515880584717,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Indiana University",
+            "hp::IUP Crimson Hawks",
+            "hp::University of Pennsylvania",
+            "hp::Wharton School of the University of Pennsylvania",
+            "hp::IUPUI University Library"
+          ]
+        },
+        {
+          "id": "hp-5ac2dc4b55429921a00ab083",
+          "type": "comparison",
+          "latency": 0.26281309127807617,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Lauren Laverne",
+            "hp::Donald Fagen",
+            "hp::The Nightfly",
+            "hp::Lauren Alaina",
+            "hp::Sunken Condos"
+          ]
+        },
+        {
+          "id": "hp-5a867089554299211dda2b30",
+          "type": "comparison",
+          "latency": 0.2671964168548584,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Shonen Jump (magazine)",
+            "hp::Weekly Shonen Jump (American magazine)",
+            "hp::Rolling Stone",
+            "hp::Keith Richards",
+            "hp::Creem"
+          ]
+        },
+        {
+          "id": "hp-5a875fee5542996e4f3087ab",
+          "type": "comparison",
+          "latency": 0.26290130615234375,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Hydrocotyle umbellata",
+            "hp::Lysiloma latisiliquum",
+            "hp::Lysiloma",
+            "hp::Sabicu wood",
+            "hp::Elaeagnus umbellata"
+          ]
+        },
+        {
+          "id": "hp-5a7a2be25542996a35c17118",
+          "type": "comparison",
+          "latency": 0.27312159538269043,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::Del Amitri (album)",
+            "hp::Del Amitri",
+            "hp::Iain Harvie",
+            "hp::N.E.D.",
+            "hp::Del Amitri discography"
+          ]
+        },
+        {
+          "id": "hp-5ab8736455429916710eb058",
+          "type": "comparison",
+          "latency": 0.2636141777038574,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Tsuro",
+            "hp::Yut",
+            "hp::Carat (board game)",
+            "hp::Deduction board game",
+            "hp::Twin Tin Bots"
+          ]
+        },
+        {
+          "id": "hp-5a8f47785542997ba9cb3217",
+          "type": "comparison",
+          "latency": 0.2631950378417969,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Frank Pepe Pizzeria Napoletana",
+            "hp::Tony's Pizza Napoletana",
+            "hp::New Haven-style pizza",
+            "hp::Donatos Pizza",
+            "hp::Antico Pizza"
+          ]
+        },
+        {
+          "id": "hp-5ae1af14554299234fd042c4",
+          "type": "comparison",
+          "latency": 0.27435874938964844,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::William Beaudine",
+            "hp::Richard Benjamin",
+            "hp::Boy of Mine",
+            "hp::Billy the Kid Versus Dracula",
+            "hp::Cornered (1924 film)"
+          ]
+        },
+        {
+          "id": "hp-5a7651825542992d0ec060a3",
+          "type": "comparison",
+          "latency": 0.2664487361907959,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Ateneo de Davao University",
+            "hp::Leoncio P. Deriada",
+            "hp::Ateneo de Manila University",
+            "hp::University of Rochester",
+            "hp::R.J. Rizada"
+          ]
+        },
+        {
+          "id": "hp-5ab27287554299722f9b4d2c",
+          "type": "comparison",
+          "latency": 0.287233829498291,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::History of the World (board game)",
+            "hp::The Game of Life",
+            "hp::List of word board games",
+            "hp::Monopoly (game)",
+            "hp::Medina (board game)"
+          ]
+        },
+        {
+          "id": "hp-5a7dca645542990b8f503aab",
+          "type": "comparison",
+          "latency": 0.2834508419036865,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Ana\u00efs Lameche",
+            "hp::Darren Hayes",
+            "hp::A Big Night in with Darren Hayes Tour",
+            "hp::So Beautiful",
+            "hp::Popular (Darren Hayes song)"
+          ]
+        },
+        {
+          "id": "hp-5a7b76225542997c3ec9719c",
+          "type": "comparison",
+          "latency": 0.2689652442932129,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::The Devil Came on Horseback",
+            "hp::Brian Steidle",
+            "hp::The Devil Came from Akasava",
+            "hp::Agee (film)",
+            "hp::American Zeitgeist"
+          ]
+        }
+      ]
+    },
+    "dense": {
+      "summary": {
+        "n": 42,
+        "recall@5": 0.861111111111111,
+        "recall@10": 0.8928571428571429,
+        "all_gold@10": 0.8333333333333334,
+        "mrr@10": 0.9404761904761905,
+        "latency_ms": 255.59100650605703
+      },
+      "by_type": {
+        "comparison": {
+          "n": 15,
+          "recall@5": 0.9333333333333333,
+          "recall@10": 0.9333333333333333,
+          "all_gold@10": 0.8666666666666667,
+          "mrr@10": 0.9666666666666667,
+          "latency_ms": 255.617094039917
+        },
+        "conflict": {
+          "n": 3,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 1.0,
+          "latency_ms": 255.85556030273438
+        },
+        "multi_hop": {
+          "n": 19,
+          "recall@5": 0.7456140350877193,
+          "recall@10": 0.8157894736842105,
+          "all_gold@10": 0.7368421052631579,
+          "mrr@10": 0.8947368421052632,
+          "latency_ms": 255.609487232409
+        },
+        "simple": {
+          "n": 5,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 1.0,
+          "latency_ms": 255.283784866333
+        }
+      },
+      "rows": [
+        {
+          "id": "syn-01",
+          "type": "simple",
+          "latency": 0.2551240921020508,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::runbook-ledger-service",
+            "syn::team-ledger",
+            "syn::weekly-ops-report-2026-w11"
+          ]
+        },
+        {
+          "id": "syn-02",
+          "type": "simple",
+          "latency": 0.2547590732574463,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::team-ledger",
+            "hp::Robert Kraft",
+            "hp::The Blackstone Group",
+            "hp::Chase Carey",
+            "hp::The Carlyle Group"
+          ]
+        },
+        {
+          "id": "syn-03",
+          "type": "simple",
+          "latency": 0.2551250457763672,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "file::vendor-sla-paybridge.pdf",
+            "hp::PayMate",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::architecture-overview",
+            "syn::postmortem-inc-1042"
+          ]
+        },
+        {
+          "id": "syn-04",
+          "type": "simple",
+          "latency": 0.2556297779083252,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::architecture-overview",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::team-notifications",
+            "syn::changelog-2026-03",
+            "hp::Media monitoring service"
+          ]
+        },
+        {
+          "id": "syn-05",
+          "type": "simple",
+          "latency": 0.2557809352874756,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::runbook-ledger-service",
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::architecture-overview"
+          ]
+        },
+        {
+          "id": "syn-06",
+          "type": "multi_hop",
+          "latency": 0.25511837005615234,
+          "r5": 0.6666666666666666,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::postmortem-inc-1042",
+            "syn::incident-inc-1057",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::status-page-inc-1042",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "syn-07",
+          "type": "multi_hop",
+          "latency": 0.25504636764526367,
+          "r5": 0.0,
+          "r10": 0.0,
+          "all10": 0.0,
+          "mrr": 0.0,
+          "top_docs": [
+            "hp::Sinclair Broadcast Group",
+            "hp::Sprint Corporation",
+            "hp::American Airlines Group",
+            "hp::AT&amp;T",
+            "hp::Pan American World Airways"
+          ]
+        },
+        {
+          "id": "syn-08",
+          "type": "multi_hop",
+          "latency": 0.25566911697387695,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::team-notifications",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057",
+            "syn::team-ledger"
+          ]
+        },
+        {
+          "id": "syn-09",
+          "type": "multi_hop",
+          "latency": 0.25621628761291504,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "file::vendor-sla-paybridge.pdf",
+            "syn::postmortem-inc-1042",
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-15",
+          "type": "conflict",
+          "latency": 0.2565455436706543,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-16",
+          "type": "conflict",
+          "latency": 0.25588321685791016,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::postmortem-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03",
+            "syn::incident-inc-1057"
+          ]
+        },
+        {
+          "id": "syn-17",
+          "type": "conflict",
+          "latency": 0.25513792037963867,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::incident-inc-1057",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::status-page-inc-1042",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "hp-5ac3d1d9554299204fd21e8a",
+          "type": "multi_hop",
+          "latency": 0.25615787506103516,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Remain in Light",
+            "hp::The Name of This Band Is Talking Heads",
+            "hp::Talking Heads",
+            "hp::The Best of Talking Heads",
+            "hp::Talking Heads (album)"
+          ]
+        },
+        {
+          "id": "hp-5ac373195542995ef918c199",
+          "type": "multi_hop",
+          "latency": 0.25611019134521484,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Bay Plaza Shopping Center",
+            "hp::South Coast Plaza",
+            "hp::Kings Plaza",
+            "hp::Port Plaza Mall",
+            "hp::Neiman Marcus"
+          ]
+        },
+        {
+          "id": "hp-5ab7f97a5542991d322237ef",
+          "type": "multi_hop",
+          "latency": 0.2569582462310791,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Opry Mills",
+            "hp::Grand Ole Opry",
+            "hp::Keith Bilbrey",
+            "hp::Ryman Auditorium",
+            "hp::Music City Queen"
+          ]
+        },
+        {
+          "id": "hp-5a74547755429979e2882900",
+          "type": "multi_hop",
+          "latency": 0.2557542324066162,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Kevin Sumlin",
+            "hp::2011 Washington Huskies football team",
+            "hp::Anthony Lynn",
+            "hp::John Butler (American football coach)",
+            "hp::Brent Key"
+          ]
+        },
+        {
+          "id": "hp-5a77626b5542993569682d77",
+          "type": "multi_hop",
+          "latency": 0.25627946853637695,
+          "r5": 0.0,
+          "r10": 0.0,
+          "all10": 0.0,
+          "mrr": 0.0,
+          "top_docs": [
+            "hp::Jena Malone",
+            "hp::Nicollette Sheridan",
+            "hp::Salma Hayek",
+            "hp::Jeanne Tripplehorn",
+            "hp::Angelina Jolie"
+          ]
+        },
+        {
+          "id": "hp-5ab529965542990594ba9d1e",
+          "type": "multi_hop",
+          "latency": 0.2557640075683594,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Trump Plaza Hotel and Casino",
+            "hp::Trump World's Fair",
+            "hp::Trump Entertainment Resorts",
+            "hp::The Atlantic Club Casino Hotel",
+            "hp::Golden Nugget Atlantic City"
+          ]
+        },
+        {
+          "id": "hp-5a77b5c255429967ab10523c",
+          "type": "multi_hop",
+          "latency": 0.25548481941223145,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::1928 Philadelphia Athletics season",
+            "hp::Eddie Collins",
+            "hp::Mickey Mantle",
+            "hp::Rusty Saunders",
+            "hp::1952 Philadelphia Athletics season"
+          ]
+        },
+        {
+          "id": "hp-5ac275f155429921a00aaf82",
+          "type": "multi_hop",
+          "latency": 0.2545440196990967,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Hanoi",
+            "hp::First Indochina War",
+            "hp::Vi\u1ec7t B\u1eafc",
+            "hp::Vietnam War Memorial, Hanoi",
+            "hp::General Staff of the Vietnam People's Army"
+          ]
+        },
+        {
+          "id": "hp-5abd573c55429924427fcfb7",
+          "type": "multi_hop",
+          "latency": 0.25524067878723145,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Zach Parise",
+            "hp::Jordan Parise",
+            "hp::Charlotte Hornets",
+            "hp::Mark Chamberlain",
+            "hp::Kasper Schmeichel"
+          ]
+        },
+        {
+          "id": "hp-5a84e0a45542991dd0999e11",
+          "type": "multi_hop",
+          "latency": 0.2552659511566162,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Steel Venom (Valleyfair)",
+            "hp::Wicked Twister",
+            "hp::Iron Rattler",
+            "hp::Venom (band)",
+            "hp::Viper (Six Flags Magic Mountain)"
+          ]
+        },
+        {
+          "id": "hp-5a84b4005542991dd0999d99",
+          "type": "multi_hop",
+          "latency": 0.2561178207397461,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::G Hannelius",
+            "hp::Dog with a Blog",
+            "hp::Gilmore Girls",
+            "hp::List of Dog with a Blog episodes",
+            "hp::Will &amp; Grace"
+          ]
+        },
+        {
+          "id": "hp-5a87aa135542996e4f3088b8",
+          "type": "multi_hop",
+          "latency": 0.25548267364501953,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Jolyon James",
+            "hp::Andrew Lloyd Webber",
+            "hp::Lin-Manuel Miranda",
+            "hp::Stephen Sondheim",
+            "hp::Tim Rice"
+          ]
+        },
+        {
+          "id": "hp-5a7c703055429935c91b51aa",
+          "type": "multi_hop",
+          "latency": 0.25495052337646484,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Francis Leighton",
+            "hp::Magdalen College, Oxford",
+            "hp::All Souls College, Oxford",
+            "hp::St Peter's College, Oxford",
+            "hp::St Hugh's College, Oxford"
+          ]
+        },
+        {
+          "id": "hp-5a886886554299206df2b258",
+          "type": "multi_hop",
+          "latency": 0.25593996047973633,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Liu Ailing",
+            "hp::FIFA Women's World Cup",
+            "hp::EAFF E-1 Football Championship",
+            "hp::Asian Martial Arts Games",
+            "hp::Pan Xiaoting"
+          ]
+        },
+        {
+          "id": "hp-5a8cb288554299585d9e3726",
+          "type": "multi_hop",
+          "latency": 0.25447964668273926,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Oikos University shooting",
+            "hp::Oakland, California",
+            "hp::Mass shooting",
+            "hp::Timothy McVeigh",
+            "hp::Zodiac Killer"
+          ]
+        },
+        {
+          "id": "hp-5a8c30f6554299240d9c20d1",
+          "type": "comparison",
+          "latency": 0.2555677890777588,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::Rolling Papers (Wiz Khalifa album)",
+            "hp::The Bomb (film)",
+            "hp::Rolling Papers (film)",
+            "hp::Leviathan (newspaper)",
+            "hp::Rolling Stone"
+          ]
+        },
+        {
+          "id": "hp-5ae1e9635542997f29b3c19e",
+          "type": "comparison",
+          "latency": 0.256103515625,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::San Angelo Regional Airport",
+            "hp::Grand Junction Regional Airport",
+            "hp::San Antonio International Airport",
+            "hp::San Angelo, Texas",
+            "hp::Killeen\u2013Fort Hood Regional Airport"
+          ]
+        },
+        {
+          "id": "hp-5a75d45f5542994ccc918630",
+          "type": "comparison",
+          "latency": 0.25546884536743164,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Griffon Bruxellois",
+            "hp::Stabyhoun",
+            "hp::Griffon",
+            "hp::Borzoi",
+            "hp::Griffon (disambiguation)"
+          ]
+        },
+        {
+          "id": "hp-5a7631c05542994ccc91870b",
+          "type": "comparison",
+          "latency": 0.25468015670776367,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Indiana University",
+            "hp::University of Pennsylvania",
+            "hp::Pennsylvania State University",
+            "hp::IUP Crimson Hawks",
+            "hp::Wharton School of the University of Pennsylvania"
+          ]
+        },
+        {
+          "id": "hp-5ac2dc4b55429921a00ab083",
+          "type": "comparison",
+          "latency": 0.255326509475708,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Lauren Laverne",
+            "hp::Donald Fagen",
+            "hp::Ava DuVernay",
+            "hp::Damien Chazelle",
+            "hp::Jessica Rothe"
+          ]
+        },
+        {
+          "id": "hp-5a867089554299211dda2b30",
+          "type": "comparison",
+          "latency": 0.2560567855834961,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Shonen Jump (magazine)",
+            "hp::Rolling Stone",
+            "hp::Weekly Shonen Jump (American magazine)",
+            "hp::The Fader",
+            "hp::Revolver (magazine)"
+          ]
+        },
+        {
+          "id": "hp-5a875fee5542996e4f3087ab",
+          "type": "comparison",
+          "latency": 0.25548458099365234,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Lysiloma",
+            "hp::Hydrocotyle umbellata",
+            "hp::Lysiloma latisiliquum",
+            "hp::Hunteria umbellata",
+            "hp::Sabicu wood"
+          ]
+        },
+        {
+          "id": "hp-5a7a2be25542996a35c17118",
+          "type": "comparison",
+          "latency": 0.25536632537841797,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Del Amitri",
+            "hp::Del Amitri (album)",
+            "hp::Del Amitri discography",
+            "hp::Iain Harvie",
+            "hp::Madrugada (band)"
+          ]
+        },
+        {
+          "id": "hp-5ab8736455429916710eb058",
+          "type": "comparison",
+          "latency": 0.25629734992980957,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Tsuro",
+            "hp::Yut",
+            "hp::David Cook (game designer)",
+            "hp::Wizet",
+            "hp::Carat (board game)"
+          ]
+        },
+        {
+          "id": "hp-5a8f47785542997ba9cb3217",
+          "type": "comparison",
+          "latency": 0.2554051876068115,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Frank Pepe Pizzeria Napoletana",
+            "hp::Tony's Pizza Napoletana",
+            "hp::Donatos Pizza",
+            "hp::Antico Pizza",
+            "hp::New Haven-style pizza"
+          ]
+        },
+        {
+          "id": "hp-5ae1af14554299234fd042c4",
+          "type": "comparison",
+          "latency": 0.2556450366973877,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::William Beaudine",
+            "hp::Richard Benjamin",
+            "hp::Boy of Mine",
+            "hp::Billy the Kid Versus Dracula",
+            "hp::Ben Cook (actor)"
+          ]
+        },
+        {
+          "id": "hp-5a7651825542992d0ec060a3",
+          "type": "comparison",
+          "latency": 0.2552177906036377,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Ateneo de Davao University",
+            "hp::University of Rochester",
+            "hp::Ateneo de Manila University",
+            "hp::Leoncio P. Deriada",
+            "hp::Universidad de Oriente"
+          ]
+        },
+        {
+          "id": "hp-5ab27287554299722f9b4d2c",
+          "type": "comparison",
+          "latency": 0.2557408809661865,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::History of the World (board game)",
+            "hp::The Game of Life",
+            "hp::Days of Wonder",
+            "hp::Chess",
+            "hp::The World of Indiana Jones"
+          ]
+        },
+        {
+          "id": "hp-5a7dca645542990b8f503aab",
+          "type": "comparison",
+          "latency": 0.25601673126220703,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Darren Hayes",
+            "hp::Ana\u00efs Lameche",
+            "hp::A Big Night in with Darren Hayes Tour",
+            "hp::We Are Smug (album)",
+            "hp::Darren Criss"
+          ]
+        },
+        {
+          "id": "hp-5a7b76225542997c3ec9719c",
+          "type": "comparison",
+          "latency": 0.25587892532348633,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::The Devil Came on Horseback",
+            "hp::Spirit: Stallion of the Cimarron",
+            "hp::Seabiscuit (film)",
+            "hp::Brian Steidle",
+            "hp::War Horse (film)"
+          ]
+        }
+      ]
+    },
+    "bm25": {
+      "summary": {
+        "n": 42,
+        "recall@5": 0.7936507936507937,
+        "recall@10": 0.888888888888889,
+        "all_gold@10": 0.7857142857142857,
+        "mrr@10": 0.8730158730158729,
+        "latency_ms": 6.44094603402274
+      },
+      "by_type": {
+        "comparison": {
+          "n": 15,
+          "recall@5": 0.7,
+          "recall@10": 0.9,
+          "all_gold@10": 0.8,
+          "mrr@10": 0.8666666666666667,
+          "latency_ms": 7.059017817179362
+        },
+        "conflict": {
+          "n": 3,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 0.8333333333333334,
+          "latency_ms": 1.0248819986979167
+        },
+        "multi_hop": {
+          "n": 19,
+          "recall@5": 0.7807017543859649,
+          "recall@10": 0.8333333333333334,
+          "all_gold@10": 0.6842105263157895,
+          "mrr@10": 0.8859649122807017,
+          "latency_ms": 7.802662096525493
+        },
+        "simple": {
+          "n": 5,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "all_gold@10": 1.0,
+          "mrr@10": 0.8666666666666666,
+          "latency_ms": 2.6618480682373047
+        }
+      },
+      "rows": [
+        {
+          "id": "syn-01",
+          "type": "simple",
+          "latency": 0.003618001937866211,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::runbook-ledger-service",
+            "syn::team-ledger",
+            "syn::architecture-overview"
+          ]
+        },
+        {
+          "id": "syn-02",
+          "type": "simple",
+          "latency": 0.004765987396240234,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::team-ledger",
+            "syn::runbook-ledger-service",
+            "syn::postmortem-inc-1042",
+            "hp::Ledger Hill",
+            "hp::The Order (2003 film)"
+          ]
+        },
+        {
+          "id": "syn-03",
+          "type": "simple",
+          "latency": 0.0003781318664550781,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "file::vendor-sla-paybridge.pdf",
+            "hp::Parent company guarantee",
+            "syn::weekly-ops-report-2026-w11",
+            "hp::Qualified Person for Pharmacovigilance",
+            "hp::Ipca Laboratories"
+          ]
+        },
+        {
+          "id": "syn-04",
+          "type": "simple",
+          "latency": 0.0010497570037841797,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.3333333333333333,
+          "top_docs": [
+            "syn::incident-inc-1057",
+            "syn::team-notifications",
+            "syn::architecture-overview",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "syn-05",
+          "type": "simple",
+          "latency": 0.0034973621368408203,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::runbook-ledger-service",
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "syn::team-ledger",
+            "syn::architecture-overview"
+          ]
+        },
+        {
+          "id": "syn-06",
+          "type": "multi_hop",
+          "latency": 0.004194736480712891,
+          "r5": 0.3333333333333333,
+          "r10": 0.3333333333333333,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::postmortem-inc-1042",
+            "syn::incident-inc-1057",
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "hp::Documentary collection"
+          ]
+        },
+        {
+          "id": "syn-07",
+          "type": "multi_hop",
+          "latency": 0.006142854690551758,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.3333333333333333,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::team-sre",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "syn-08",
+          "type": "multi_hop",
+          "latency": 0.00865936279296875,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::incident-inc-1057",
+            "syn::architecture-overview",
+            "syn::changelog-2026-03",
+            "syn::team-notifications",
+            "syn::postmortem-inc-1042"
+          ]
+        },
+        {
+          "id": "syn-09",
+          "type": "multi_hop",
+          "latency": 0.0017962455749511719,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "file::vendor-sla-paybridge.pdf",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::postmortem-inc-1042",
+            "syn::changelog-2026-03"
+          ]
+        },
+        {
+          "id": "syn-15",
+          "type": "conflict",
+          "latency": 0.00048732757568359375,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::status-page-inc-1042",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03",
+            "syn::postmortem-inc-1042",
+            "hp::Michael V Kalaphates"
+          ]
+        },
+        {
+          "id": "syn-16",
+          "type": "conflict",
+          "latency": 0.0019545555114746094,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "syn::weekly-ops-report-2026-w11",
+            "syn::status-page-inc-1042",
+            "syn::postmortem-inc-1042",
+            "syn::changelog-2026-03",
+            "hp::Middle office"
+          ]
+        },
+        {
+          "id": "syn-17",
+          "type": "conflict",
+          "latency": 0.0006327629089355469,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "syn::incident-inc-1057",
+            "syn::weekly-ops-report-2026-w11",
+            "syn::changelog-2026-03",
+            "syn::status-page-inc-1042",
+            "syn::postmortem-inc-1042"
+          ]
+        },
+        {
+          "id": "hp-5ac3d1d9554299204fd21e8a",
+          "type": "multi_hop",
+          "latency": 0.011306285858154297,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Remain in Light",
+            "hp::Born Under Punches (The Heat Goes On)",
+            "hp::The Name of This Band Is Talking Heads",
+            "hp::Once in a Lifetime: The Best of Talking Heads",
+            "hp::The Best of Talking Heads"
+          ]
+        },
+        {
+          "id": "hp-5ac373195542995ef918c199",
+          "type": "multi_hop",
+          "latency": 0.002775430679321289,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Bay Plaza Shopping Center",
+            "hp::Port Plaza Mall",
+            "hp::The Shoppes at Parma",
+            "hp::Ashley Landing",
+            "hp::Britton Plaza Shopping Center"
+          ]
+        },
+        {
+          "id": "hp-5ab7f97a5542991d322237ef",
+          "type": "multi_hop",
+          "latency": 0.0005202293395996094,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Opry Mills",
+            "hp::Music City Queen",
+            "hp::Keith Bilbrey",
+            "hp::Ryman Auditorium",
+            "hp::John England &amp; the Western Swingers"
+          ]
+        },
+        {
+          "id": "hp-5a74547755429979e2882900",
+          "type": "multi_hop",
+          "latency": 0.008464336395263672,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Kevin Sumlin",
+            "hp::Willie Fritz",
+            "hp::Ernest T. Jones",
+            "hp::Skip Holtz",
+            "hp::2008 Houston Cougars football team"
+          ]
+        },
+        {
+          "id": "hp-5a77626b5542993569682d77",
+          "type": "multi_hop",
+          "latency": 0.02136683464050293,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Marika Green",
+            "hp::Emmanuelle (film)",
+            "hp::Pickpocket (film)",
+            "hp::Mouchette",
+            "hp::Laura Duke Condominas"
+          ]
+        },
+        {
+          "id": "hp-5ab529965542990594ba9d1e",
+          "type": "multi_hop",
+          "latency": 0.006760120391845703,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Trump Plaza Hotel and Casino",
+            "hp::The Atlantic Club Casino Hotel",
+            "hp::Trump World's Fair",
+            "hp::Trump Entertainment Resorts",
+            "hp::TEN Atlantic City"
+          ]
+        },
+        {
+          "id": "hp-5a77b5c255429967ab10523c",
+          "type": "multi_hop",
+          "latency": 0.006036281585693359,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::1928 Philadelphia Athletics season",
+            "hp::Oakland Athletics all-time roster",
+            "hp::1891 Philadelphia Athletics season",
+            "hp::Eddie Collins",
+            "hp::Woody Upchurch"
+          ]
+        },
+        {
+          "id": "hp-5ac275f155429921a00aaf82",
+          "type": "multi_hop",
+          "latency": 0.011778593063354492,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::List of war museums and monuments in Vietnam",
+            "hp::Hanoi",
+            "hp::Landmines in the Vietnam War",
+            "hp::Vietnam Campaign Medal",
+            "hp::First Indochina War"
+          ]
+        },
+        {
+          "id": "hp-5abd573c55429924427fcfb7",
+          "type": "multi_hop",
+          "latency": 0.018009662628173828,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Zach Parise",
+            "hp::Jordan Parise",
+            "hp::2002 IIHF World U18 Championships",
+            "hp::Chet Gladchuk Jr.",
+            "hp::List of Australian rules football families"
+          ]
+        },
+        {
+          "id": "hp-5a84e0a45542991dd0999e11",
+          "type": "multi_hop",
+          "latency": 0.0021898746490478516,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Steel Venom (Valleyfair)",
+            "hp::Wicked Twister",
+            "hp::Possessed (roller coaster)",
+            "hp::Excalibur (Valleyfair)",
+            "hp::Spider-Man: The Venom Saga"
+          ]
+        },
+        {
+          "id": "hp-5a84b4005542991dd0999d99",
+          "type": "multi_hop",
+          "latency": 0.0037169456481933594,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::G Hannelius",
+            "hp::List of Dog with a Blog episodes",
+            "hp::Den Brother",
+            "hp::Dog with a Blog",
+            "hp::Leo Little's Big Show"
+          ]
+        },
+        {
+          "id": "hp-5a87aa135542996e4f3088b8",
+          "type": "multi_hop",
+          "latency": 0.0038080215454101562,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Jolyon James",
+            "hp::M\u00e1rton Vizy",
+            "hp::Jimmy Bryant (singer)",
+            "hp::A Change in Me",
+            "hp::Anna von Mildenburg"
+          ]
+        },
+        {
+          "id": "hp-5a7c703055429935c91b51aa",
+          "type": "multi_hop",
+          "latency": 0.0038101673126220703,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Francis Leighton",
+            "hp::All Souls College, Oxford",
+            "hp::Oriel College, Oxford",
+            "hp::Wolfson College, Oxford",
+            "hp::St Peter's College, Oxford"
+          ]
+        },
+        {
+          "id": "hp-5a886886554299206df2b258",
+          "type": "multi_hop",
+          "latency": 0.008785247802734375,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Liu Ailing",
+            "hp::FIFA Women's World Cup",
+            "hp::EAFF E-1 Football Championship (women)",
+            "hp::S.U. 1\u00ba Dezembro (women)",
+            "hp::Women's Nordic Football Championship"
+          ]
+        },
+        {
+          "id": "hp-5a8cb288554299585d9e3726",
+          "type": "multi_hop",
+          "latency": 0.018129348754882812,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::1972 American League Championship Series",
+            "hp::Oikos University shooting",
+            "hp::2015 Cricket World Cup opening ceremony",
+            "hp::Nickelodeon UK Kids' Choice Awards 2012",
+            "hp::Gymnastics at the 2002 Asian Games"
+          ]
+        },
+        {
+          "id": "hp-5a8c30f6554299240d9c20d1",
+          "type": "comparison",
+          "latency": 0.008374214172363281,
+          "r5": 0.0,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 0.16666666666666666,
+          "top_docs": [
+            "hp::Big Bambu",
+            "hp::List of rolling papers",
+            "hp::Amber Leaf",
+            "hp::Rolling Papers (Wiz Khalifa album)",
+            "hp::Smoking (rolling paper)"
+          ]
+        },
+        {
+          "id": "hp-5ae1e9635542997f29b3c19e",
+          "type": "comparison",
+          "latency": 0.010399103164672852,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Grand Junction Regional Airport",
+            "hp::San Angelo Regional Airport",
+            "hp::Ute meridian",
+            "hp::Elizabeth City Regional Airport",
+            "hp::Carroll County Regional Airport"
+          ]
+        },
+        {
+          "id": "hp-5a75d45f5542994ccc918630",
+          "type": "comparison",
+          "latency": 0.002224445343017578,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Griffon Bruxellois",
+            "hp::Griffon (disambiguation)",
+            "hp::Canine Chiari-like malformation",
+            "hp::Griffon",
+            "hp::Rare breed (dog)"
+          ]
+        },
+        {
+          "id": "hp-5a7631c05542994ccc91870b",
+          "type": "comparison",
+          "latency": 0.006335735321044922,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 0.3333333333333333,
+          "top_docs": [
+            "hp::Sara Steelman",
+            "hp::IUP Crimson Hawks",
+            "hp::Indiana University",
+            "hp::University Park, Pennsylvania",
+            "hp::Wharton School of the University of Pennsylvania"
+          ]
+        },
+        {
+          "id": "hp-5ac2dc4b55429921a00ab083",
+          "type": "comparison",
+          "latency": 0.001344919204711914,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Lauren Laverne",
+            "hp::Donald Fagen",
+            "hp::11 Tracks of Whack",
+            "hp::The Nightfly",
+            "hp::Sunken Condos"
+          ]
+        },
+        {
+          "id": "hp-5a867089554299211dda2b30",
+          "type": "comparison",
+          "latency": 0.004243135452270508,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 0.5,
+          "top_docs": [
+            "hp::Weekly Shonen Jump (American magazine)",
+            "hp::Shonen Jump (magazine)",
+            "hp::Cross Manage",
+            "hp::List of Naruto chapters (Part I)",
+            "hp::Nisekoi"
+          ]
+        },
+        {
+          "id": "hp-5a875fee5542996e4f3087ab",
+          "type": "comparison",
+          "latency": 0.0018312931060791016,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Hydrocotyle umbellata",
+            "hp::Elaeagnus umbellata",
+            "hp::Lysiloma latisiliquum",
+            "hp::Sabicu wood",
+            "hp::Coeloplana fishelsoni"
+          ]
+        },
+        {
+          "id": "hp-5a7a2be25542996a35c17118",
+          "type": "comparison",
+          "latency": 0.010071992874145508,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::The Operation M.D.",
+            "hp::N.E.D.",
+            "hp::Del Amitri (album)",
+            "hp::Iain Harvie",
+            "hp::Del Amitri"
+          ]
+        },
+        {
+          "id": "hp-5ab8736455429916710eb058",
+          "type": "comparison",
+          "latency": 0.003713369369506836,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Tsuro",
+            "hp::Yut",
+            "hp::David Parlett",
+            "hp::Glossary of board games",
+            "hp::List of word board games"
+          ]
+        },
+        {
+          "id": "hp-5a8f47785542997ba9cb3217",
+          "type": "comparison",
+          "latency": 0.003675699234008789,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Frank Pepe Pizzeria Napoletana",
+            "hp::New Haven-style pizza",
+            "hp::Tony's Pizza Napoletana",
+            "hp::Tutta Bella Neapolitan Pizzeria",
+            "hp::Antico Pizza"
+          ]
+        },
+        {
+          "id": "hp-5ae1af14554299234fd042c4",
+          "type": "comparison",
+          "latency": 0.011133670806884766,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::William Beaudine",
+            "hp::Richard Benjamin",
+            "hp::Cornered (1924 film)",
+            "hp::Road to Paradise (film)",
+            "hp::Boy of Mine"
+          ]
+        },
+        {
+          "id": "hp-5a7651825542992d0ec060a3",
+          "type": "comparison",
+          "latency": 0.00559234619140625,
+          "r5": 0.5,
+          "r10": 0.5,
+          "all10": 0.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Ateneo de Davao University",
+            "hp::Leoncio P. Deriada",
+            "hp::Ateneo de Manila University",
+            "hp::Joel Tabora",
+            "hp::R.J. Rizada"
+          ]
+        },
+        {
+          "id": "hp-5ab27287554299722f9b4d2c",
+          "type": "comparison",
+          "latency": 0.011375188827514648,
+          "r5": 0.5,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::History of the World (board game)",
+            "hp::Pandemic (board game)",
+            "hp::Sher-bakar",
+            "hp::List of word board games",
+            "hp::Catan Card Game"
+          ]
+        },
+        {
+          "id": "hp-5a7dca645542990b8f503aab",
+          "type": "comparison",
+          "latency": 0.019106149673461914,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::Ana\u00efs Lameche",
+            "hp::So Beautiful",
+            "hp::Popular (Darren Hayes song)",
+            "hp::A Big Night in with Darren Hayes Tour",
+            "hp::Darren Hayes"
+          ]
+        },
+        {
+          "id": "hp-5a7b76225542997c3ec9719c",
+          "type": "comparison",
+          "latency": 0.0064640045166015625,
+          "r5": 1.0,
+          "r10": 1.0,
+          "all10": 1.0,
+          "mrr": 1.0,
+          "top_docs": [
+            "hp::The Devil Came on Horseback",
+            "hp::My Best Fiend",
+            "hp::Brian Steidle",
+            "hp::3 Generations (nonprofit)",
+            "hp::Jane I. Wells"
+          ]
+        }
+      ]
+    }
+  },
+  "e2e": {}
+}

@@ -172,7 +172,8 @@ Interactive docs: `/docs`.
 
 ## Evaluation
 
-See [EVALUATION.md](EVALUATION.md). `python eval/build_eval_set.py && python eval/run_eval.py --e2e hybrid,bm25 --sleep 6`
+See [EVALUATION.md](EVALUATION.md): hybrid Recall@10 0.944 (dense 0.893, BM25 0.889); agent answer correctness 0.810,
+abstention on unanswerable 1.0, conflict detection 1.0, 0 hallucinated citations. `python eval/build_eval_set.py && python eval/run_eval.py --e2e hybrid --sleep 8`
 writes `eval/results/report.md`; `python eval/chunking_experiment.py` writes `eval/results/chunking.md`.
 
 ## Cost & performance
