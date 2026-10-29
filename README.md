@@ -18,7 +18,7 @@ inline citations, flags conflicting evidence, and refuses to answer when the evi
   incident-management documents in 5 formats (change log, postmortem, status page, runbook, architecture, SLA PDF,
   team directory) with deliberate contradictions.
 - **Stack:** Python 3.11 · FastAPI · Qdrant Cloud (free) · fastembed `bge-small-en-v1.5` (ONNX, CPU) ·
-  own BM25 + RRF · OpenAI-compatible LLM (Gemini 2.5 Flash free tier, or Groq) · vanilla JS UI · Docker on Hugging Face Spaces.
+  own BM25 + RRF · OpenAI-compatible LLM (Gemini 3.1 Flash-Lite free tier, or Groq) · vanilla JS UI · Docker on Hugging Face Spaces.
 
 ## Architecture
 
@@ -94,7 +94,7 @@ flowchart LR
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 cp .env.example .env            # fill QDRANT_URL / QDRANT_API_KEY / LLM_API_KEY
-pytest -q                        # 28 tests, no network needed
+pytest -q                        # 35 tests, no network needed
 
 python scripts/build_hotpot_corpus.py --target 60000
 python scripts/ingest.py --synthetic --corpus data/hotpot/corpus.jsonl
@@ -105,11 +105,12 @@ uvicorn app.main:app --reload    # http://localhost:8000
 
 1. **Qdrant Cloud:** create a free cluster, copy URL + API key into `.env`, run the ingest above once from your machine.
 2. **Hugging Face Space:** new Space → SDK *Docker* → push this repo. In *Settings → Variables and secrets* add
-   `QDRANT_URL`, `QDRANT_API_KEY`, `LLM_API_KEY` (secrets) and `LLM_BASE_URL`, `LLM_MODEL`, `ADMIN_TOKEN`.
+   `QDRANT_URL`, `QDRANT_API_KEY`, `LLM_API_KEY` (secrets) and `LLM_BASE_URL`, `LLM_MODEL`, `ADMIN_TOKEN`, `TRUST_PROXY=1`.
 3. The image bakes the embedding model; on boot the app rebuilds BM25 from Qdrant (~30–60 s for 60k docs).
 
 Secrets live only in `.env` (git-ignored) and Space secrets. Write endpoints require `X-Admin-Token` when `ADMIN_TOKEN`
-is set; `/ask` is rate-limited per IP to protect the free LLM quota.
+is set (always set it on a public Space). `/ask` is rate-limited per client IP to protect the free LLM quota; behind
+the Spaces proxy set `TRUST_PROXY=1` so the limit keys on the real client (`X-Forwarded-For`), not the proxy.
 
 ### Free-tier limits
 
@@ -117,7 +118,7 @@ is set; `/ask` is rate-limited per IP to protect the free LLM quota.
 |---|---|---|
 | HF Spaces CPU basic | 2 vCPU, 16 GB RAM, sleeps after 48 h idle | First request after sleep waits for boot + BM25 rebuild |
 | Qdrant Cloud free | 1 GB RAM / 4 GB disk, paused after 1 week idle | Enough for ~60k chunks; re-activate in the console if paused |
-| Gemini 2.5 Flash free | per-minute and per-day request caps | Each question = 2–4 LLM calls; eval uses `--sleep` to stay under RPM |
+| Gemini 3.1 Flash-Lite free | per-minute and per-day request caps | Each question = 2–4 LLM calls; eval uses `--sleep` to stay under RPM |
 
 ## API
 
