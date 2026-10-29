@@ -13,7 +13,8 @@ pinned: false
 Agentic RAG system that answers multi-hop questions over a large document collection (50k+ documents) with
 inline citations, flags conflicting evidence, and refuses to answer when the evidence is missing.
 
-- **Live demo:** `TODO: https://huggingface.co/spaces/<user>/ai-investigation-engine`
+- **Live demo:** served from the author's machine through a Cloudflare quick tunnel (`scripts/demo.ps1`); the link is
+  shared on request because it changes on every start. Hugging Face now requires PRO for Docker Spaces, see *Deploy*.
 - **Corpus:** every unique Wikipedia paragraph in the HotpotQA validation contexts (50k+ documents) + 11 synthetic
   incident-management documents in 5 formats (change log, postmortem, status page, runbook, architecture, SLA PDF,
   team directory) with deliberate contradictions.
@@ -107,6 +108,17 @@ uvicorn app.main:app --reload    # http://localhost:8000
 2. **Hugging Face Space:** new Space → SDK *Docker* → push this repo. In *Settings → Variables and secrets* add
    `QDRANT_URL`, `QDRANT_API_KEY`, `LLM_API_KEY` (secrets) and `LLM_BASE_URL`, `LLM_MODEL`, `ADMIN_TOKEN`, `TRUST_PROXY=1`.
 3. The image bakes the embedding model; on boot the app rebuilds BM25 from Qdrant (~30–60 s for 60k docs).
+
+Note (Oct 2026): Hugging Face now asks for PRO to run Docker Spaces on free CPU, and the app needs ~760 MB RAM
+with the full index (more than 512 MB free tiers such as Render/Koyeb). The free path used for the demo:
+
+```powershell
+winget install --id Cloudflare.cloudflared
+# .env: QDRANT_URL/QDRANT_API_KEY/LLM_API_KEY as above + DEMO_ADMIN_TOKEN=<random>
+powershell -ExecutionPolicy Bypass -File scripts\demo.ps1   # prints https://<random>.trycloudflare.com
+```
+
+The script locks write endpoints with `DEMO_ADMIN_TOKEN` and sets `TRUST_PROXY=1` so the rate limit sees visitor IPs.
 
 Secrets live only in `.env` (git-ignored) and Space secrets. Write endpoints require `X-Admin-Token` when `ADMIN_TOKEN`
 is set (always set it on a public Space). `/ask` is rate-limited per client IP to protect the free LLM quota; behind
