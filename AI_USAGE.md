@@ -17,11 +17,31 @@
 
 ## What I changed / decided myself
 
-TODO(oto) — be specific and honest; the interview will check this. For example:
-- which parts you rewrote after reviewing them and why
-- bugs you found when running on the real corpus / Qdrant Cloud
-- parameters you tuned from eval results (chunk size, `RRF_K`, `MAX_CHUNKS_PER_DOC`, `TOP_K`)
-- deployment issues you solved
+Most code was written with Claude Code; my part was choosing the direction, running it on the real setup and
+deciding what to do when something broke. Concretely:
+
+**Decisions I made**
+- Dataset: HotpotQA validation paragraphs (66,563 documents after dedup) plus a small synthetic incident corpus with
+  deliberate contradictions, so the conflict and abstention requirements can actually be tested.
+- Stack: Qdrant Cloud free tier for vectors, FastEmbed `bge-small-en-v1.5` on CPU (no embedding API cost), an
+  OpenAI-compatible LLM client so the provider is a config change.
+- UI: kept the working tool layout and asked only for a restyle, not a redesign of the flow.
+- Evaluation model: first tried Groq (`qwen/qwen3.8-27b`). It failed for reasons unrelated to my system (7k input
+  tokens/min cap returns 413 on multi-step questions; the model invented tool names), so I stopped that run to save
+  quota and switched the eval to Gemini 3.1 Flash-Lite, the same model the demo uses.
+- Hosting: Hugging Face now requires PRO for Docker Spaces (got HTTP 402) and the app needs ~760 MB RAM, more than
+  512 MB free tiers. I chose a Cloudflare quick tunnel from my machine with write endpoints locked by an admin token.
+- Free-tier budget: I asked for every run to minimise LLM calls (retrieval eval needs none; only one end-to-end config).
+
+**Problems found by running it for real (fixed with Claude Code, reviewed by me)**
+- Gemini 3 rejected follow-up requests with HTTP 400 until each tool call's `thought_signature` was echoed back.
+- `gemini-2.5-flash` returned 404 on my key; the default model became `gemini-3.1-flash-lite`.
+- Concurrent uploads could corrupt the in-memory BM25 index → write/index locks; updates now upsert first and delete
+  stale chunks after, so a failed update never loses the old version.
+- A model passing `top_k="six"` crashed `/ask` → tool arguments are coerced and validated.
+- Behind a proxy every visitor shared one rate-limit bucket → `TRUST_PROXY` reads the client from `X-Forwarded-For`.
+- Groq 400 `tool_use_failed` degraded the whole answer → the agent now answers from the evidence already gathered.
+- Eval scripts crashed on Windows cp1252 output (`→` in an answer) → UTF-8 stdout.
 
 ## How I verified AI-written code
 
